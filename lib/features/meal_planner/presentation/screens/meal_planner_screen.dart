@@ -87,6 +87,17 @@ class _MealPlannerScreenState extends ConsumerState<MealPlannerScreen> {
     }
   }
 
+  Future<void> _openWeeklyPlan() async {
+    final result = await context.push<bool>(
+      '/meal-planner/weekly-plan',
+      extra: {'weekStart': _weekStart},
+    );
+    if (result == true && mounted) {
+      _loadWeek();
+      context.showSuccessSnackBar('Weekly plan added', bottomMargin: 88);
+    }
+  }
+
   Future<void> _openEditEntry(MealPlanEntryModel entry) async {
     final result = await context.push<bool>(
       '/meal-planner/add',
@@ -125,6 +136,16 @@ class _MealPlannerScreenState extends ConsumerState<MealPlannerScreen> {
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
          actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome_outlined),
+            tooltip: 'Suggest week plan',
+            onPressed: _openWeeklyPlan,
+          ),
+          IconButton(
+            icon: const Icon(Icons.savings_outlined),
+            tooltip: 'Can I save?',
+            onPressed: () => context.push('/meal-planner/savings'),
+          ),
           IconButton(
             icon: const Icon(Icons.shopping_cart_outlined),
             tooltip: 'Grocery List',

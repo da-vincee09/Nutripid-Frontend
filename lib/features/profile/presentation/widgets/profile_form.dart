@@ -168,6 +168,43 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 
+  Widget _hintBox(String text) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.burntOrange.withValues(alpha: isDark ? 0.14 : 0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.info_outline,
+            size: 18,
+            color: AppColors.burntOrange,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: theme.textTheme.bodySmall?.copyWith(
+                height: 1.4,
+                color: isDark
+                    ? AppColors.darkSecondaryText
+                    : AppColors.lightSecondaryText,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _choiceChipRow({
     required List<String> options,
     required String? selected,
@@ -418,10 +455,15 @@ class _ProfileFormState extends State<ProfileForm> {
           onSelected: (value) => setState(() => _cookingSkillLevel = value),
         ),
 
+        if (ProfileOptions.skillHint(_cookingSkillLevel) != null)
+          _hintBox(ProfileOptions.skillHint(_cookingSkillLevel)!),
+
+        const SizedBox(height: 20),
+
         const SizedBox(height: 16),
 
         Text('Physical Activity Level', style: theme.textTheme.labelLarge),
-        const SizedBox(height: 8,),
+        const SizedBox(height: 8),
         _choiceChipRow(
           options: ProfileOptions.physicalActivityLevels, 
           selected: _physicalActivityLevel,
@@ -429,18 +471,11 @@ class _ProfileFormState extends State<ProfileForm> {
           onSelected: (value) => 
             setState(() => _physicalActivityLevel = value),
         ),
+        
         if (ProfileOptions.activityHint(_physicalActivityLevel) != null)
-          Padding(
-            padding:  const EdgeInsets.only(top: 8),
-            child: Text(
-              ProfileOptions.activityHint(_physicalActivityLevel)!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: isDark
-                  ? AppColors.darkSecondaryText
-                  : AppColors.lightSecondaryText,
-              ),
-            ),
-          ),
+          _hintBox(ProfileOptions.activityHint(_physicalActivityLevel)!),
+
+        const SizedBox(height: 20),
 
 
         const SizedBox(height: 8),

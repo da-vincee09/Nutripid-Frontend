@@ -18,6 +18,8 @@ import 'package:meal_recommendation_app/features/profile/presentation/screens/pr
 import 'package:meal_recommendation_app/features/recommendations/presentation/screens/recommendations_screen.dart';
 import 'package:meal_recommendation_app/features/meal_planner/presentation/screens/meal_planner_screen.dart';
 import 'package:meal_recommendation_app/features/settings/presentation/screens/settings_screen.dart';
+import 'package:meal_recommendation_app/features/weekly_plan/presentation/screens/weekly_plan_draft_screen.dart';
+import 'package:meal_recommendation_app/features/savings/presentation/screens/savings_screen.dart';
 import 'routes.dart';
 
 // Central configuration for all application navigation.
@@ -126,6 +128,20 @@ final appRouter = GoRouter(
         state: state,
         child: const SettingsScreen(),
       ),
+    ),
+
+    GoRoute(
+      path: AppRoutes.weeklyPlanner,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        return WeeklyPlanDraftScreen(weekStart: extra['weekStart'] as DateTime);
+      },
+    ),
+
+    GoRoute(
+      path: AppRoutes.savings,
+      name: 'savings',
+      builder: (context, state) => const SavingsScreen(),
     ),
 
     // Defines the five bottom navigation branches and their shared layout.

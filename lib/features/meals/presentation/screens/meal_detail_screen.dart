@@ -137,30 +137,36 @@ class MealDetailScreen extends ConsumerWidget {
                     [
                       // ================= QUICK INFO =================
                       _SectionCard(
-                        child: Wrap(
-                          spacing: 10,
-                          runSpacing: 10,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _InfoChip(
-                              icon: Icons.timer_outlined,
-                              label: '${meal.cookingTime} min',
-                            ),
-                            _InfoChip(
-                              icon: Icons.bar_chart_rounded,
-                              label: meal.difficulty,
-                            ),
-                            _InfoChip(
-                              icon: Icons.people_outline_rounded,
-                              label: '${meal.servings} servings',
-                            ),
-                            if (meal.calories != null)
-                              _InfoChip(
-                                icon: Icons.local_fire_department_outlined,
-                                label: '${meal.calories} kcal',
-                              ),
-                            _InfoChip(
-                              icon: Icons.payments_outlined,
-                              label: formatPeso(meal.estimatedCost),
+                    
+                            const SizedBox(height: 14),
+                            Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: [
+                                _PricePill(
+                                  price: formatPeso(meal.estimatedCost),
+                                ),
+                                _InfoChip(
+                                  icon: Icons.timer_outlined,
+                                  label: '${meal.cookingTime} min',
+                                ),
+                                _InfoChip(
+                                  icon: Icons.bar_chart_rounded,
+                                  label: meal.difficulty,
+                                ),
+                                _InfoChip(
+                                  icon: Icons.people_outline_rounded,
+                                  label: '${meal.servings} servings',
+                                ),
+                                if (meal.calories != null)
+                                  _InfoChip(
+                                    icon: Icons.local_fire_department_outlined,
+                                    label: '${meal.calories} kcal',
+                                  ),
+                              ],
                             ),
                           ],
                         ),
@@ -879,6 +885,46 @@ class _InfoChip extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontWeight: FontWeight.w600,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+// ============================================================
+// PRICE PILL
+// ============================================================
+
+class _PricePill extends StatelessWidget {
+  final String price;
+
+  const _PricePill({required this.price});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+      decoration: BoxDecoration(
+        color: AppColors.burntOrange,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.payments_outlined,
+            size: 17,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 7),
+          Text(
+            price,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                ),
           ),
         ],
       ),

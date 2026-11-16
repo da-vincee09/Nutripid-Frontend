@@ -1,14 +1,14 @@
 # TipidMeal 🍽️
 
-A budget-friendly meal recommendation app designed to help users discover practical, affordable meals based on their budget, cooking skills, dietary restrictions, ingredient preferences, and available pantry ingredients — and to see how nutritionally adequate each meal is for them.
+A budget-friendly meal recommendation app designed to help users discover practical, affordable meals based on their budget, cooking skills, dietary restrictions, ingredient preferences, and available pantry ingredients. It also shows how nutritionally adequate each meal is for them, helps them plan a whole week, and tells them whether their plan lets them save.
 
-> **Project status:** 🚧 In Development — **Week 6 Complete, Week 7 Nearly Complete (Day 4 outstanding), Week 8 (Nutrition) Built — results pending final data verification**
+> **Project status:** 🚧 In Development: **Week 6 Complete, Week 7 Nearly Complete (Day 4 outstanding), Week 8 (Nutrition) Built, Weekly Planning and Savings added, results pending final data verification**
 
 ---
 
 ## 🚀 Current Progress
 
-### Authentication — ✅ Complete
+### Authentication: ✅ Complete
 
 Authentication is implemented using **Supabase Auth** and **Flutter Riverpod**.
 
@@ -46,26 +46,26 @@ Login        Profile Exists?        │
            Home   Profile Setup     │
 ```
 
-Sign out is accessible via **Settings**, reusing this same `AuthController.signOut()` flow — see the Settings section below.
+Sign out is accessible via **Settings**, reusing this same `AuthController.signOut()` flow. See the Settings section below.
 
 ### Password Security
 
-Registration now enforces a defined password strength policy client-side, with a live visual checklist rather than a single pass/fail error shown only after submit.
+Registration enforces a defined password strength policy client-side, with a live visual checklist rather than a single pass/fail error shown only after submit.
 
-* ✅ `PasswordValidator` (`core/utils/password_validator.dart`) — single source of truth for the rule set:
+* ✅ `PasswordValidator` (`core/utils/password_validator.dart`): single source of truth for the rule set:
   * At least 8 characters
   * At least one uppercase letter
   * At least one lowercase letter
   * At least one number
   * At least one symbol (from the set Supabase accepts: `` !@#$%^&*()_+-=[]{};'\:"|<>?,./`~ ``)
-* ✅ `PasswordRule` — pairs a human-readable label with its own `isMet(password)` check, so the rule set is data-driven rather than a hardcoded if/else chain
-* ✅ `PasswordValidator.isValid()` / `unmetLabels()` — used both for the live checklist and for the final submit-time check
-* ✅ `PasswordRequirements` (`core/widgets/password_requirements.dart`) — live checklist widget shown under the password field on Register:
+* ✅ `PasswordRule`: pairs a human-readable label with its own `isMet(password)` check, so the rule set is data-driven rather than a hardcoded if/else chain
+* ✅ `PasswordValidator.isValid()` / `unmetLabels()`: used both for the live checklist and for the final submit-time check
+* ✅ `PasswordRequirements` (`core/widgets/password_requirements.dart`): live checklist widget shown under the password field on Register:
   * Each rule renders as a pill that turns olive with a check as it's satisfied
   * Once every rule is met, the checklist holds briefly (so the last tick is visible), then fades out and collapses
   * Reappears automatically if the password becomes invalid again (e.g. user backspaces)
   * Visible while the password field is focused or has text; hidden otherwise
-* ✅ `RegisterScreen` — blocks submission with a snackbar listing unmet rules (`PasswordValidator.unmetLabels()`) if the password doesn't satisfy every rule, and separately checks the confirm-password field matches
+* ✅ `RegisterScreen`: blocks submission with a snackbar listing unmet rules (`PasswordValidator.unmetLabels()`) if the password doesn't satisfy every rule, and separately checks the confirm-password field matches
 * ✅ **Password reset** is handled by Supabase's own hosted reset-link flow (the app only triggers sending the email); the same password requirements are configured directly in the Supabase Auth dashboard, so a password rejected by the client-side checklist on Register is never silently accepted through the reset-password link, and vice versa
 
 ```text
@@ -86,7 +86,7 @@ Proceed    Snackbar listing       │
 
 ---
 
-## 👤 Profile — ✅ Complete
+## 👤 Profile: ✅ Complete
 
 The Profile feature connects to the FastAPI + PostgreSQL backend through Supabase-hosted PostgreSQL and Supabase Storage.
 
@@ -106,9 +106,9 @@ Implemented:
 * ✅ Profile picture caching
 * ✅ Food allergies
 * ✅ Disliked ingredients
-* ✅ Budget per meal (renamed from Daily Budget — see below)
-* ✅ Cooking skill level
-* ✅ Physical activity level (Week 7 — see below)
+* ✅ Budget per meal (renamed from Daily Budget, see below)
+* ✅ Cooking skill level, with a description for each level (see below)
+* ✅ Physical activity level (Week 7, see below)
 * ✅ Shared `ProfileForm`
 * ✅ Profile Setup onboarding
 * ✅ Profile viewing/editing
@@ -143,35 +143,43 @@ Public Image URL
 Profile
 ```
 
+### Cooking Skill Descriptions
+
+Each cooking skill level now shows a short description so users know what to pick during Setup and Edit, the same way activity level shows a hint.
+
+* ✅ Skill level options display a human-readable description of what a cook at that level can handle
+* ✅ Shown in the shared `ProfileForm`, so Setup and Edit stay consistent
+* ✅ Descriptions are defined in `ProfileOptions`, not hardcoded in the form
+
 ### Budget Per Meal (renamed from Daily Budget)
 
-The backend renamed `daily_budget` → `budget_per_meal` (a plain column rename, no behavior change — the value was always compared against a single meal's cost, so the old name was misleading). The Flutter side has been updated to match end-to-end:
+The backend renamed `daily_budget` → `budget_per_meal` (a plain column rename, no behavior change: the value was always compared against a single meal's cost, so the old name was misleading). The Flutter side has been updated to match end-to-end:
 
-* ✅ `ProfileModel.budgetPerMeal` — parses `budget_per_meal` from `GET /profiles/me`
-* ✅ `ProfileCreateRequest.budgetPerMeal` / `ProfileUpdateRequest.budgetPerMeal` — both send `budget_per_meal` as the JSON key
-* ✅ `ProfileForm` — field label reads "Budget Per Meal", validation message reads "Please enter a valid budget per meal"
-* ✅ Read-only Profile view — row label reads "Budget Per Meal"
-* ✅ Home screen summary card — label reads "Budget Per Meal"
+* ✅ `ProfileModel.budgetPerMeal`: parses `budget_per_meal` from `GET /profiles/me`
+* ✅ `ProfileCreateRequest.budgetPerMeal` / `ProfileUpdateRequest.budgetPerMeal`: both send `budget_per_meal` as the JSON key
+* ✅ `ProfileForm`: field label reads "Budget Per Meal", validation message reads "Please enter a valid budget per meal"
+* ✅ Read-only Profile view: row label reads "Budget Per Meal"
+* ✅ Home screen summary card: label reads "Budget Per Meal"
 * ✅ `formatPeso()` used consistently wherever the value is displayed
 
-No `dailyBudget` field name remains anywhere in the Flutter codebase — the rename is complete on both client and server, so their JSON keys agree.
+No `dailyBudget` field name remains anywhere in the Flutter codebase. The rename is complete on both client and server, so their JSON keys agree.
 
 ### Physical Activity Level (Week 7)
 
 Added in Week 7 as groundwork for the Nutrition feature. As of Week 8 the backend uses it, together with date of birth and sex, to determine each user's daily caloric requirement, which drives the nutrition results shown in Meal Detail and on recommendation cards. It is **not** used in recommendation scoring.
 
-* ✅ `ProfileOptions.physicalActivityLevels` — `sedentary`, `moderately_active`, `active`, matching the backend enum exactly
-* ✅ `ProfileOptions.activityLabel()` / `activityHint()` — human-readable display labels and short explanatory hints per level
-* ✅ `ProfileFormData.physicalActivityLevel` — required field, non-nullable
-* ✅ `ProfileForm` — choice-chip selector, shared between Setup and Edit, with a hint line under the selected chip
-* ✅ `_submit()` validation — blocks submission with a snackbar if no activity level is selected
-* ✅ `ProfileCreateRequest.physicalActivityLevel` — required, always sent (matches the backend's `ProfileCreate` requiring it)
-* ✅ `ProfileUpdateRequest.physicalActivityLevel` — optional, only sent if changed (matches `ProfileUpdate`)
-* ✅ `ProfileModel.physicalActivityLevel` — parsed from `GET /profiles/me`, surfaced on the read-only Profile view via `ProfileOptions.activityLabel()`
+* ✅ `ProfileOptions.physicalActivityLevels`: `sedentary`, `moderately_active`, `active`, matching the backend enum exactly
+* ✅ `ProfileOptions.activityLabel()` / `activityHint()`: human-readable display labels and short explanatory hints per level
+* ✅ `ProfileFormData.physicalActivityLevel`: required field, non-nullable
+* ✅ `ProfileForm`: choice-chip selector, shared between Setup and Edit, with a hint line under the selected chip
+* ✅ `_submit()` validation: blocks submission with a snackbar if no activity level is selected
+* ✅ `ProfileCreateRequest.physicalActivityLevel`: required, always sent (matches the backend's `ProfileCreate` requiring it)
+* ✅ `ProfileUpdateRequest.physicalActivityLevel`: optional, only sent if changed (matches `ProfileUpdate`)
+* ✅ `ProfileModel.physicalActivityLevel`: parsed from `GET /profiles/me`, surfaced on the read-only Profile view via `ProfileOptions.activityLabel()`
 
 ---
 
-# 🏠 Home — ✅ Complete
+# 🏠 Home: ✅ Complete
 
 The Home screen has been implemented as the application's primary dashboard.
 
@@ -192,7 +200,7 @@ Implemented:
 * ✅ Navigation to Pantry
 * ✅ Navigation to Profile
 * ✅ Navigation to Favorites (AppBar action)
-* ✅ Quick Actions (Meal Planner, Grocery List)
+* ✅ Quick Actions (Meal Planner, Grocery List) **[confirm: add Weekly Plan / Savings if they are Home quick actions]**
 
 The Home screen provides a summary of the user's current meal-planning information.
 
@@ -208,7 +216,7 @@ Home
 
 ---
 
-# 🥫 Pantry — ✅ Complete
+# 🥫 Pantry: ✅ Complete
 
 The Pantry feature allows users to manage ingredients currently available to them.
 
@@ -227,7 +235,7 @@ Implemented:
 * ✅ Unit support
 * ✅ Ingredient autocomplete
 * ✅ Unit auto-detection from meal data (single-unit ingredients auto-select; multi-unit ingredients narrow the picker to only their known units)
-* ✅ Backend-driven unit list (`GET /meals/units`) — no hardcoded unit set on the client
+* ✅ Backend-driven unit list (`GET /meals/units`): no hardcoded unit set on the client
 * ✅ Add ingredient dialog
 * ✅ Edit ingredient dialog
 * ✅ Loading states
@@ -273,11 +281,11 @@ A user cannot access another user's pantry through the application API.
 
 ### Ingredient/unit matching
 
-Pantry and recipe ingredients are matched by an exact `(ingredient, unit)` key across Pantry, Recommendations, and Grocery List. Free-text unit entry previously allowed mismatched spellings (e.g. `"pcs"` vs `"cloves"`) to silently break matching — a pantry item could exist without ever being recognized as satisfying a recipe's requirement. This has been addressed by constraining unit selection to a backend-sourced canonical list, with automatic single-unit detection based on how each ingredient is actually used across seeded meals.
+Pantry and recipe ingredients are matched by an exact `(ingredient, unit)` key across Pantry, Recommendations, and Grocery List. Free-text unit entry previously allowed mismatched spellings (e.g. `"pcs"` vs `"cloves"`) to silently break matching: a pantry item could exist without ever being recognized as satisfying a recipe's requirement. This has been addressed by constraining unit selection to a backend-sourced canonical list, with automatic single-unit detection based on how each ingredient is actually used across seeded meals.
 
 ---
 
-# 🍳 Meals — ✅ Complete
+# 🍳 Meals: ✅ Complete
 
 The Meals feature provides access to the application's meal database.
 
@@ -295,15 +303,15 @@ Implemented:
 * ✅ Meal filtering
 * ✅ Meal cards
 * ✅ Meal detail screen
+* ✅ **Estimated cost is the first thing shown when viewing a meal**, so affordability is visible before anything else
 * ✅ Ingredients
 * ✅ Ingredient quantities
 * ✅ Cooking instructions
-* ✅ Estimated cost
 * ✅ Cooking time
 * ✅ Difficulty
 * ✅ Servings
 * ✅ Calories
-* ✅ Nutrition section on Meal Detail (Week 8 — see Nutrition below)
+* ✅ Nutrition section on Meal Detail (Week 8, see Nutrition below)
 * ✅ Cached network images
 * ✅ Graceful handling of meals without images
 * ✅ Seeded meal database
@@ -313,7 +321,7 @@ Current seeded meals (20 total, confirmed Week 7):
 
 * Sinigang na Baboy, Tortang Talong, Ginisang Ampalaya, Pinakbet, Bicol Express, Ukoy, Vegetable Lumpia, Chicken Adobo, Chop Suey, Beef Tapa, Beef Caldereta, Ginisang Sardinas, Chicken Tinola, Garlic Fried Rice, Pancit Bihon, Corned Beef Guisado, Pork Menudo, Ginataang Gulay, Ginisang Munggo, Filipino Chicken Curry
 
-> ⚠️ **Known gap (Week 7, Day 4 — not yet done):** `servings` and the associated ingredient quantities/cost/calories for these seeded meals are still **sample data**, not yet normalized to represent exactly 1 serving. The Meal Detail screen currently shows whatever `servings` value the seed data has, not a guaranteed "1 serving." The Nutrition caloric check compares each meal's `calories` to a per-serving bracket, so nutrition results should be treated as provisional until this is done.
+> ⚠️ **Known gap (Week 7, Day 4, not yet done):** `servings` and the associated ingredient quantities/cost/calories for these seeded meals are still **sample data**, not yet normalized to represent exactly 1 serving. The Meal Detail screen currently shows whatever `servings` value the seed data has, not a guaranteed "1 serving." The Nutrition caloric check compares each meal's `calories` to a per-serving bracket, so nutrition results should be treated as provisional until this is done.
 
 Meal navigation supports nested meal-detail routes (within the Meals tab) and a standalone meal-detail route (from Favorites and other non-shell entry points):
 
@@ -323,8 +331,8 @@ Meals
 Meal Card
   ↓
 Meal Details
+  ├── Estimated Cost (shown first)
   ├── Image
-  ├── Estimated Cost
   ├── Cooking Time
   ├── Difficulty
   ├── Nutrition (Week 8)
@@ -333,9 +341,11 @@ Meal Details
   └── Favorite toggle
 ```
 
+**[confirm]** If the price sits above the image, keep the order above. If it sits right below the image, move `Image` to the top.
+
 ---
 
-# ⭐ Recommendations — ✅ Complete (Week 6), Extended (Week 7), Nutrition Badge (Week 8)
+# ⭐ Recommendations: ✅ Complete (Week 6), Extended (Week 7), Nutrition Badge (Week 8)
 
 The deterministic recommendation system is now implemented end-to-end.
 
@@ -349,7 +359,7 @@ The system considers:
 * ✅ Ingredient substitutions
 * ✅ Ingredient quantities
 * ✅ Optional ingredients
-* ✅ Budget compatibility (now a hard affordability filter as of Week 7 — see below)
+* ✅ Budget compatibility (now a hard affordability filter as of Week 7, see below)
 * ✅ Cooking skill
 * ✅ Food allergies
 * ✅ Disliked ingredients
@@ -409,7 +419,7 @@ Meals containing allergies are excluded (unchanged, hard filter).
 
 Available substitutes and optional ingredients can allow a meal to remain recommendable.
 
-**Week 8:** nutritional adequacy is shown alongside each recommendation but is **informational** — it does not change the hybrid score weights or the ranking.
+**Week 8:** nutritional adequacy is shown alongside each recommendation but is **informational**. It does not change the hybrid score weights or the ranking.
 
 ### Ingredient adaptation
 
@@ -436,7 +446,7 @@ fallback
 
 A floating sort toggle ("Best Match" / "Lowest Cost") sits pinned to the bottom of the Recommendations screen.
 
-* ✅ `RecommendationsRemoteDatasource.getRecommendations({sortBy})` — passes `sort_by` as a query param to the backend
+* ✅ `RecommendationsRemoteDatasource.getRecommendations({sortBy})`: passes `sort_by` as a query param to the backend
 * ✅ **Client-side re-sort architecture:** rather than re-fetching from the network on every toggle tap, `RecommendationController` fetches the full recommendation list once (default order from the backend), then re-sorts it in memory via `setSortBy()`. This makes toggling instant with no loading state and eliminates any stale-response race between fast repeated taps.
 * ✅ The client-side sort logic in `_sorted()` exactly mirrors the backend's own `sort_by=score` / `sort_by=cost` ordering rules (fallback tiering + hybrid score tiebreak for score; cost ascending + hybrid score tiebreak for cost), so the two stay consistent even though the client isn't literally re-querying the server per toggle.
 * ✅ `RecommendationRepository` / `RecommendationRepositoryImpl` both updated to accept and forward `sortBy`.
@@ -460,17 +470,17 @@ This is important because the Flutter application uses a persistent `StatefulShe
 
 ---
 
-# 🥗 Nutrition — ✅ Built (Week 8), Results Pending Final Data Verification
+# 🥗 Nutrition: ✅ Built (Week 8), Results Pending Final Data Verification
 
 The Nutrition feature tells the user whether a meal is **nutritionally adequate for them**, using Philippine dietary standards. It appears in two places:
 
-* **Meal Detail** — a Nutrition section for the opened meal.
-* **Recommendation cards** — a compact nutrition badge.
+* **Meal Detail:** a Nutrition section for the opened meal.
+* **Recommendation cards:** a compact nutrition badge.
 
 All nutrition logic runs on the FastAPI backend; the Flutter client only requests and displays the result. The backend combines the user's profile (date of birth, sex, physical activity level) with the meal (calories and ingredients) and applies:
 
-* **Caloric adequacy** — the meal's calories vs. a per-meal bracket derived from PDRI 2015 (FNRI-DOST), scaled for activity level with FAO/WHO/UNU PAL ratios.
-* **Food-group adequacy** — the meal's Grow/Glow balance vs. Pinggang Pinoy (FNRI-DOST 2016) bands.
+* **Caloric adequacy:** the meal's calories vs. a per-meal bracket derived from PDRI 2015 (FNRI-DOST), scaled for activity level with FAO/WHO/UNU PAL ratios.
+* **Food-group adequacy:** the meal's Grow/Glow balance vs. Pinggang Pinoy (FNRI-DOST 2016) bands.
 
 A meal is nutritionally adequate only when **both** checks pass. Seeded meals are single ulam dishes (rice is its own meal), so the backend scales both checks to an ulam rather than a full plate; the methodology and its limitations are documented in the backend README.
 
@@ -479,7 +489,7 @@ Implemented (Flutter):
 * ✅ `ApiConstants.mealNutritionAdequacy(id)` → `/meals/$id/nutrition-adequacy`
 * ✅ Nutrition section on the Meal Detail screen, showing the server's adequacy result for the signed-in user
 * ✅ Nutrition badge on recommendation cards, fed by the extended `/recommendations` response (no extra request per card)
-* ✅ Nutrition results follow the user's profile — updating physical activity level, date of birth, or sex changes the verdict
+* ✅ Nutrition results follow the user's profile: updating physical activity level, date of birth, or sex changes the verdict
 
 ```text
 Flutter
@@ -517,11 +527,11 @@ A result can be **unavailable** rather than adequate/inadequate, and the client 
 
 * 🔲 **Staple meals:** the backend now returns `is_staple` for Garlic Fried Rice. Showing a dedicated "staple" state in the client (instead of a generic "unavailable"), plus a short note that the Go group is supplied by rice, is not yet implemented.
 * Results are provisional until the Week 7 Day 4 servings/calories normalization is done and the evaluation is rerun (see the note under Meals).
-* Detailed nutrient metrics (protein, carbohydrates, fat) are not part of this feature — see Future features.
+* Detailed nutrient metrics (protein, carbohydrates, fat) are not part of this feature. See Future features.
 
 ---
 
-# 📅 Meal Planner — ✅ Complete (Week 6), Fixed (Week 7)
+# 📅 Meal Planner: ✅ Complete (Week 6), Fixed (Week 7)
 
 The Meal Planner feature allows users to schedule meals from the meal database onto specific dates and meal slots (breakfast/lunch/dinner), and view them as a weekly calendar.
 
@@ -584,11 +594,103 @@ Meal plan entries are scoped to the authenticated user's profile, consistent wit
 
 ---
 
-# 🛒 Grocery List — ✅ Complete (Pricing Added)
+# 🗓️ Weekly Plan: ✅ Built
 
-The Grocery List feature generates a shopping list from the user's planned meals for a given date range, offset against what's already in their pantry — and, where price data is available, estimates the cost of buying it.
+Weekly Plan lets users generate a draft plan for the whole week, review it slot by slot, swap meals they do not want, and save the result into the Meal Planner.
 
-The grocery list is **fully derived** — there is no dedicated database table for it. It is computed on request from `meal_plan_entries`, `pantry_items`, and (as of this update) `ingredient_prices`.
+Implemented (Flutter):
+
+* ✅ `WeeklyPlanRequest` and `WeeklyPlanDraftModel`
+* ✅ Remote datasource (`WeeklyPlanRemoteDatasource`), repository, and Riverpod provider
+* ✅ Draft screen (`WeeklyPlanDraftScreen`) showing the generated plan
+* ✅ `WeeklyPlanSlotCard` for each slot in the draft
+* ✅ `SwapMealSheet`, a bottom sheet for replacing a single meal in the draft
+* ✅ `WeeklyPlanSummaryCard` summarizing the draft
+* ✅ `WeeklyPlanLoadingState` while the draft is generated
+* ✅ Endpoint: POST /weekly-plan/generate
+* ✅ Saving the draft creates regular Meal Planner entries
+* ✅ Entry point: Meal planner action bar
+
+```text
+Flutter
+   ↓
+WeeklyPlanDraftScreen
+   ↓
+WeeklyPlanController
+   ↓
+WeeklyPlanRepository
+   ↓
+WeeklyPlanRemoteDatasource
+   ↓
+FastAPI ([confirm: route])
+   ↓
+PostgreSQL
+```
+
+---
+
+# 💰 Savings: ✅ Built
+
+The Savings screen ("Can I Save?") answers one question: based on the meals the user has planned, will they come in under budget?
+
+It compares the estimated cost of planned meals against the user's budget and shows the result for the current week or the current month.
+
+Implemented (Flutter):
+
+* ✅ `SavingsSummaryModel` with a verdict (`saving`, `onBudget`, `overBudget`), total savings, estimated cost total, budget total, and planned meal count
+* ✅ `DailySavingsModel`: one entry per day with meals planned, estimated cost, budget, and savings
+* ✅ `SavingsProjectionModel`: a full-period estimate if the user plans every meal in the period like the ones already planned
+* ✅ `SavingsPeriod` (week / month) with an underline tab selector at the top of the screen
+* ✅ Remote datasource, repository, and Riverpod `SavingsController`
+* ✅ Verdict card: verdict label, amount saved or over, progress bar of budget spent, and cost / budget / meal count stats
+* ✅ Projection card: "Full week/month estimate"
+* ✅ Day-by-day list with the weekday, meals planned, cost versus budget, and the amount saved or overspent, with a green or orange status bar per row
+* ✅ Today highlighted in the day list
+* ✅ Loading, error, retry, and empty states (no planned meals in the period)
+* ✅ Pull-to-refresh
+* ✅ Disclaimer that figures are estimates based on each meal's estimated cost
+* ✅ Styling uses the app's theme (`Card`, text theme) with green for money saved and burnt orange for on or over budget
+
+```text
+Meal Planner entries
+        +
+Meal estimated costs
+        +
+Budget per meal
+        ↓
+Savings summary (week or month)
+        ↓
+Verdict + daily breakdown + projection
+```
+
+```text
+Flutter
+   ↓
+SavingsScreen
+   ↓
+SavingsController
+   ↓
+SavingsRepository
+   ↓
+SavingsRemoteDatasource
+   ↓
+FastAPI ([confirm: route])
+   ↓
+PostgreSQL
+```
+
+### Known limitations
+
+* Savings are based on estimated meal costs, not real receipts, so they inherit the limits of the cost data (see the servings normalization gap under Meals).
+* Days with no planned meals show no amount and are not counted as savings **[confirm]**
+
+---
+
+# 🛒 Grocery List: ✅ Complete (Pricing Added)
+
+The Grocery List feature generates a shopping list from the user's planned meals for a given date range, offset against what's already in their pantry and, where price data is available, estimates the cost of buying it.
+
+The grocery list is **fully derived**: there is no dedicated database table for it. It is computed on request from `meal_plan_entries`, `pantry_items`, and (as of this update) `ingredient_prices`.
 
 Implemented:
 
@@ -597,17 +699,17 @@ Implemented:
 * ✅ `GroceryListResponse` / `GroceryListItem` schemas
 * ✅ Aggregation of required ingredients across all planned meals in a date range
 * ✅ Aggregation of current pantry quantities
-* ✅ Per-`(ingredient, unit)` subtraction — ingredients where the pantry already covers the requirement are excluded entirely
-* ✅ Router (`/grocery-list`) with default current-week (Monday–Sunday) date range when no dates are supplied
+* ✅ Per-`(ingredient, unit)` subtraction: ingredients where the pantry already covers the requirement are excluded entirely
+* ✅ Router (`/grocery-list`) with default current-week (Monday to Sunday) date range when no dates are supplied
 * ✅ Explicit `start_date`/`end_date` query parameter support
 * ✅ `start_date > end_date` validation
 * ✅ Profile-ownership enforcement
 * ✅ Per-item `estimated_cost`, looked up from `ingredient_prices` by exact `(ingredient, unit)` match
-* ✅ `total_estimated_cost` — sum of every priced item; `null` if nothing in the list could be priced (never a misleading `₱0.00`)
+* ✅ `total_estimated_cost`: sum of every priced item; `null` if nothing in the list could be priced (never a misleading `₱0.00`)
 
 **Flutter**
 
-* ✅ `GroceryListItemModel` / `GroceryListResponseModel` — including `estimatedCost` per item and `totalEstimatedCost` on the response
+* ✅ `GroceryListItemModel` / `GroceryListResponseModel`, including `estimatedCost` per item and `totalEstimatedCost` on the response
 * ✅ Remote datasource (`GroceryListRemoteDatasource`)
 * ✅ Repository (`GroceryListRepository`)
 * ✅ Riverpod `GroceryListController`
@@ -641,13 +743,13 @@ PostgreSQL (meal_plan_entries + pantry_items + ingredient_prices)
 ### Known limitations
 
 * Checklist state is local-only (`SharedPreferences`) and does not sync across devices.
-* Grocery list matching uses the same exact `(ingredient, unit)` matching as Recommendations — see Pantry's "Ingredient/unit matching" section above.
-* Quantities shown reflect current (not-yet-normalized) seed data servings — see the Week 7 servings gap noted under Meals above.
-* **Prices are placeholder/estimated data**, not sourced from official price monitoring (e.g. DTI) — see the backend README's pricing seed-data caveat. An ingredient with no price entry for its exact unit shows no cost line and is silently excluded from the total, rather than guessed.
+* Grocery list matching uses the same exact `(ingredient, unit)` matching as Recommendations. See Pantry's "Ingredient/unit matching" section above.
+* Quantities shown reflect current (not-yet-normalized) seed data servings. See the Week 7 servings gap noted under Meals above.
+* **Prices are placeholder/estimated data**, not sourced from official price monitoring (e.g. DTI). See the backend README's pricing seed-data caveat. An ingredient with no price entry for its exact unit shows no cost line and is silently excluded from the total, rather than guessed.
 
 ---
 
-# ⭐ Favorites — ✅ Complete
+# ⭐ Favorites: ✅ Complete
 
 The Favorites feature allows users to bookmark meals from the meal database for quick access, independent of whether the meal is scheduled anywhere in their Meal Planner.
 
@@ -662,7 +764,7 @@ Implemented:
 * ✅ Pydantic schemas (`FavoriteCreate`, `FavoriteResponse`, `FavoriteMealSummary`)
 * ✅ Repository layer (create, get by profile+meal, list by profile, delete)
 * ✅ Service layer with idempotent add and idempotent remove
-* ✅ Router (`/favorites`) — add, list, remove (keyed by `meal_id`)
+* ✅ Router (`/favorites`): add, list, remove (keyed by `meal_id`)
 * ✅ Profile-ownership enforcement
 
 **Flutter**
@@ -673,10 +775,10 @@ Implemented:
 * ✅ Riverpod `FavoritesController`
 * ✅ Optimistic add (instant UI update using known meal fields, confirmed/rolled back against the server response)
 * ✅ Optimistic remove (instant UI update, rollback on failure)
-* ✅ `FavoriteButton` widget — heart icon reflecting live favorite state
+* ✅ `FavoriteButton` widget: heart icon reflecting live favorite state
 * ✅ Favorite button on `MealCard` (thumbnail overlay)
 * ✅ Favorite button on `MealDetailScreen` (AppBar action)
-* ✅ Favorites screen — list of favorited meals with empty state
+* ✅ Favorites screen: list of favorited meals with empty state
 * ✅ Standalone meal-detail route (`/meal-detail/:id`) for navigating from outside the bottom-nav shell
 * ✅ Entry point from Home (AppBar action)
 
@@ -704,20 +806,20 @@ This was resolved by adding a second, standalone route (`/meal-detail/:id`) poin
 
 ---
 
-# ⚙️ Settings — ✅ Complete
+# ⚙️ Settings: ✅ Complete
 
 The Settings screen exposes the light/dark/system theme preference that already existed at the `ThemeData` level, and relocates sign-out into a dedicated account section.
 
 Implemented:
 
-* ✅ `ThemeModeController` (Riverpod) — owns the active `ThemeMode`
-* ✅ `ThemePreferencesService` — persists the selected mode via `SharedPreferences`
+* ✅ `ThemeModeController` (Riverpod): owns the active `ThemeMode`
+* ✅ `ThemePreferencesService`: persists the selected mode via `SharedPreferences`
 * ✅ Theme preference restored on app launch
 * ✅ Light / Dark / System segmented toggle, applied instantly app-wide
 * ✅ Settings screen (Appearance section + Account section)
 * ✅ Edit Profile link (routes to existing Profile screen)
 * ✅ Sign Out with confirmation dialog
-* ✅ Sign Out reuses the existing `AuthController.signOut()` — no new sign-out logic, only a new UI location
+* ✅ Sign Out reuses the existing `AuthController.signOut()`: no new sign-out logic, only a new UI location
 * ✅ Sign Out routes back to Login afterward
 * ✅ Settings entry point (Profile screen AppBar action)
 
@@ -735,83 +837,83 @@ SharedPreferences      Supabase Auth
 App-wide theme         Login
 ```
 
-No new backend endpoints were required — this feature is UI-only, per the original scope (theming already existed at the `ThemeData` level; sign-out already existed in Authentication).
+No new backend endpoints were required: this feature is UI-only, per the original scope (theming already existed at the `ThemeData` level; sign-out already existed in Authentication).
 
 ---
 
-# 🛠️ Week 7 — Fixes First (Nearly Complete)
+# 🛠️ Week 7: Fixes First (Nearly Complete)
 
-Week 7 focuses on fixes to existing features before Nutrition (Week 8): Meal Planner past-date/slot blocking, consistent peso formatting, cost-based recommendation sorting, cooking-skill scoring verification, meal-servings normalization, password strength enforcement, the daily-budget → budget-per-meal rename, and — as the one genuinely new addition — a physical activity level field on Profile.
+Week 7 focuses on fixes to existing features before Nutrition (Week 8): Meal Planner past-date/slot blocking, consistent peso formatting, cost-based recommendation sorting, cooking-skill scoring verification, meal-servings normalization, password strength enforcement, the daily-budget → budget-per-meal rename, and, as the one genuinely new addition, a physical activity level field on Profile.
 
-### Day 1 — Meal Planner: Past-Slot Guard ✅
+### Day 1: Meal Planner Past-Slot Guard ✅
 
-* ✅ Backend guard on create + update — `400` with a clear message when a date/slot has already passed
+* ✅ Backend guard on create + update: `400` with a clear message when a date/slot has already passed
 * ✅ Cutoff constants centralized (`core/constants.py` backend; `core/constants/meal_planner_constants.dart` client)
 * ✅ Date picker's `firstDate` clamped to today
 * ✅ Past slot chips disabled/grayed for the currently selected day; auto-clears an already-selected slot if the picked date moves it into the past
-* ✅ New `BadRequestException` (400) added to `ApiException` — previously any non-401/404/422 error fell through to a generic "Something went wrong" `ServerException`, hiding the backend's actual guard message
+* ✅ New `BadRequestException` (400) added to `ApiException`. Previously any non-401/404/422 error fell through to a generic "Something went wrong" `ServerException`, hiding the backend's actual guard message
 * ✅ `tzdata` added as a backend dependency (Windows' `zoneinfo` has no built-in tz database)
 
-### Day 2 — Peso Formatting Sweep ✅
+### Day 2: Peso Formatting Sweep ✅
 
-* ✅ Single `formatPeso()` utility (`core/utils/currency_utils.dart`) — zero/null always renders `₱0.00`, never blank or a bare `0`
+* ✅ Single `formatPeso()` utility (`core/utils/currency_utils.dart`): zero/null always renders `₱0.00`, never blank or a bare `0`
 * ✅ Swept: Profile (view + edit), Home budget summary, Meal cards, Meal detail, Recommendation cards, Meal Planner entries, Favorites, Grocery List (per-item cost + total), meal picker in Add/Edit Meal Plan Entry
 * ✅ Removed the old per-model `displayCost` getter on `MealModel` in favor of the single shared formatter
 * ✅ Backend: `estimated_cost_total` quantized to 2 decimal places server-side
 
-### Day 3 — Recommendations Cost Sort + Cooking Skill Verification ✅
+### Day 3: Recommendations Cost Sort + Cooking Skill Verification ✅
 
 * ✅ Backend: `sort_by` query param (`score` default, `cost`) on `GET /api/v1/recommendations`
-* ✅ Backend: affordability hard filter added — meals over the user's budget per meal are now excluded from the response entirely (a stricter behavior than originally scoped; Budget Compatibility's 30% weight now only differentiates among affordable meals)
-* ✅ Backend: fallback meals no longer excluded server-side — now returned, tiered after `adapt` meals under the default sort
+* ✅ Backend: affordability hard filter added: meals over the user's budget per meal are now excluded from the response entirely (a stricter behavior than originally scoped; Budget Compatibility's 30% weight now only differentiates among affordable meals)
+* ✅ Backend: fallback meals no longer excluded server-side: now returned, tiered after `adapt` meals under the default sort
 * ✅ Flutter: floating "Best Match" / "Lowest Cost" sort toggle on the Recommendations screen
-* ✅ Flutter: client-side re-sort architecture — recommendations fetched once, re-sorted in memory on toggle for instant, race-free switching
+* ✅ Flutter: client-side re-sort architecture: recommendations fetched once, re-sorted in memory on toggle for instant, race-free switching
 * ✅ Cooking skill scoring manually verified against all 20 seeded meals (Swagger + in-app), confirming smooth degradation, proportionate score gaps, and no penalty for Advanced users on any difficulty
 * ✅ Confirmed all 20 seeded `Meal.difficulty` values are exactly `easy` / `medium` / `hard`, so none silently fall outside the skill-scoring compatibility table
-* 🔲 No automated unit tests were written for `scoring.py` — verification was manual only
+* 🔲 No automated unit tests were written for `scoring.py`: verification was manual only
 
-### Day 4 — Password Strength + Budget Rename ✅
+### Day 4: Password Strength + Budget Rename ✅
 
 * ✅ `PasswordValidator` and live `PasswordRequirements` checklist added to Register (see Password Security under Authentication above)
 * ✅ Password rules kept in sync with the equivalent policy configured in the Supabase Auth dashboard, so Register (client-validated) and the Supabase-hosted password-reset link (server-validated) never disagree
-* ✅ Backend `daily_budget` → `budget_per_meal` rename fully propagated to Flutter: `ProfileModel`, `ProfileCreateRequest`, `ProfileUpdateRequest`, `ProfileForm`, the read-only Profile view, and the Home summary card — no stale `dailyBudget` references remain
-* ✅ Grocery List pricing — `estimated_cost` per item and `total_estimated_cost` surfaced in the Flutter models and UI (see Grocery List above)
+* ✅ Backend `daily_budget` → `budget_per_meal` rename fully propagated to Flutter: `ProfileModel`, `ProfileCreateRequest`, `ProfileUpdateRequest`, `ProfileForm`, the read-only Profile view, and the Home summary card, with no stale `dailyBudget` references remaining
+* ✅ Grocery List pricing: `estimated_cost` per item and `total_estimated_cost` surfaced in the Flutter models and UI (see Grocery List above)
 
-### Day 5 — Profile: Physical Activity Level ✅
+### Day 5: Profile Physical Activity Level ✅
 
 * ✅ Backend: `physical_activity_level` column + enum (`sedentary`, `moderately_active`, `active`) on `Profile`
 * ✅ Backend: Alembic migration (`aa4a5f458607`)
-* ✅ Backend: required on `ProfileCreate`, optional on `ProfileUpdate`/`ProfileResponse` — a deliberate decision, not the originally-scoped "nullable until filled later"
+* ✅ Backend: required on `ProfileCreate`, optional on `ProfileUpdate`/`ProfileResponse`, a deliberate decision, not the originally-scoped "nullable until filled later"
 * ✅ Flutter: `ProfileOptions` activity level list + display labels + hints
 * ✅ Flutter: activity selector added to the shared `ProfileForm` (both Setup and Edit)
 * ✅ Flutter: surfaced on the read-only Profile view
 * ✅ Flutter: `ProfileCreateRequest` sends it as required; `ProfileUpdateRequest` sends it only if changed
-* ⚪ Not used in recommendation scoring — it feeds Week 8's Nutrition feature (see below), not the recommendation score
+* ⚪ Not used in recommendation scoring: it feeds Week 8's Nutrition feature (see below), not the recommendation score
 
 ### Remaining
 
-* 🔲 Meal servings normalization (1-serving baseline across all 20 seeded meals — current data is still sample/unverified servings, ingredient quantities, cost, and calories)
+* 🔲 Meal servings normalization (1-serving baseline across all 20 seeded meals: current data is still sample/unverified servings, ingredient quantities, cost, and calories)
 
 ---
 
-# 🥗 Week 8 — Nutrition (Built)
+# 🥗 Week 8: Nutrition (Built)
 
 Week 8 adds the Nutrition feature: for each meal and user, whether the meal is nutritionally adequate against Philippine dietary standards (PDRI 2015 for energy, Pinggang Pinoy for food groups). It supports the thesis's Objective 4. Most of the work is backend; the Flutter side displays the result.
 
-### Days 1–4 — Backend ✅
+### Days 1 to 4: Backend ✅
 
 * ✅ **Day 1:** PDRI energy table and daily caloric requirement per profile (sex + age bracket, scaled for activity level)
 * ✅ **Day 2:** `ingredient_food_groups` reference table (Go / Grow / Glow / other) and seed data
-* ✅ **Day 3:** caloric adequacy, food-group proportions, and the combined adequacy result — verified by hand calculation
+* ✅ **Day 3:** caloric adequacy, food-group proportions, and the combined adequacy result, verified by hand calculation
 * ✅ **Day 4:** `GET /api/v1/meals/{meal_id}/nutrition-adequacy`, and the `/recommendations` response extended with each meal's nutrition result
 
-### Day 5 — Flutter ✅
+### Day 5: Flutter ✅
 
 * ✅ `ApiConstants.mealNutritionAdequacy(id)` endpoint constant
 * ✅ Nutrition section on the Meal Detail screen
 * ✅ Nutrition badge on recommendation cards
 
-### Day 6 — Evaluation harness ✅ (backend)
+### Day 6: Evaluation harness ✅ (backend)
 
 * ✅ `scripts/evaluate_nutrition_adequacy.py` runs the real adequacy logic over a 30-profile × meal test matrix (5 PDRI age brackets × 2 sexes × 3 activity levels) and reports the accuracy measure for Objective 4, with per-criterion and per-meal breakdowns
 * ✅ `scripts/debug_food_group_exclusions.py` lists which ingredients are counted or silently dropped from each meal's food-group proportions
@@ -831,7 +933,7 @@ Week 8 adds the Nutrition feature: for each meal and user, whether the meal is n
 
 ---
 
-# 🧭 Navigation — ✅ Complete
+# 🧭 Navigation: ✅ Complete
 
 The application uses a bottom navigation shell containing:
 
@@ -863,12 +965,14 @@ Meal planner add/edit uses nested routing:
 /meal-planner/add
 ```
 
-Grocery List, Favorites, and Settings are standalone pushed routes, launched from Meal Planner, Home, or Profile rather than bottom-nav tabs:
+Grocery List, Favorites, Settings, Weekly Plan, and Savings are standalone pushed routes, launched from Meal Planner, Home, or Profile rather than bottom-nav tabs:
 
 ```text
 /grocery-list
 /favorites
 /settings
+/weekly-plan      [confirm: route path]
+/savings          [confirm: route path]
 ```
 
 The navigation structure allows users to move through the primary application flow:
@@ -885,6 +989,8 @@ Home
 Meals    Planner     Pantry   Recommendations   Profile
  ↓         ↓                    ↓                  ↓
 Details  Grocery List      Meal Details         Settings
+         Weekly Plan
+         Savings
 
 Home ──→ Favorites ──→ Meal Details (standalone route)
 ```
@@ -926,12 +1032,14 @@ Protected backend features include:
 * Profile
 * Pantry
 * Meal Planner
+* Weekly Plan
+* Savings
 * Recommendations
 * Grocery List
 * Favorites
 * Nutrition
 
-Note: `GET /meals/units` and `GET /meals/ingredients/suggestions` are intentionally **unauthenticated**, since they expose no user-specific data — just the set of units/ingredients used across the shared meal database. `GET /meals/{id}/nutrition-adequacy` is authenticated, since the result depends on the caller's profile.
+Note: `GET /meals/units` and `GET /meals/ingredients/suggestions` are intentionally **unauthenticated**, since they expose no user-specific data, just the set of units/ingredients used across the shared meal database. `GET /meals/{id}/nutrition-adequacy` is authenticated, since the result depends on the caller's profile.
 
 User-specific data is always associated with the authenticated user's profile. Password strength is enforced client-side at registration and server-side (via Supabase Auth configuration) for the reset-password link, so account credentials meet the same bar regardless of which path created or changed them.
 
@@ -1004,13 +1112,13 @@ FastAPI
 
 This keeps UI code independent from the underlying API implementation.
 
-The Recommendations feature is a partial exception as of Week 7: `RecommendationController` also owns in-memory sort state (`_rawRecommendations`, `_sortBy`) and re-sorts client-side on toggle, rather than every state change mapping 1:1 to a fresh network round-trip. This is a deliberate UX optimization (instant, race-free sort toggling), not a layering violation — the controller still goes through `RecommendationRepository` → `RecommendationsRemoteDatasource` → FastAPI for the actual fetch.
+The Recommendations feature is a partial exception as of Week 7: `RecommendationController` also owns in-memory sort state (`_rawRecommendations`, `_sortBy`) and re-sorts client-side on toggle, rather than every state change mapping 1:1 to a fresh network round-trip. This is a deliberate UX optimization (instant, race-free sort toggling), not a layering violation: the controller still goes through `RecommendationRepository` → `RecommendationsRemoteDatasource` → FastAPI for the actual fetch.
 
-Settings is a partial exception to this layering — it has no `data/` or `domain/` layer of its own, since it doesn't call any dedicated backend endpoint. It composes `ThemeModeController` (in `core/`, since theme is an app-wide concern rather than feature-specific) with the existing `AuthController`.
+Settings is a partial exception to this layering: it has no `data/` or `domain/` layer of its own, since it doesn't call any dedicated backend endpoint. It composes `ThemeModeController` (in `core/`, since theme is an app-wide concern rather than feature-specific) with the existing `AuthController`.
 
-Nutrition has no client-side calculation: the adequacy result is computed entirely by the backend and the client only requests and renders it.
+Nutrition has no client-side calculation: the adequacy result is computed entirely by the backend and the client only requests and renders it. Savings follows the same rule: the verdict, daily breakdown, and projection are computed server-side and the client only renders them.
 
-`PasswordValidator` (`core/utils/`) is a similar app-wide utility rather than a feature-scoped one — it's consumed by Authentication's Register screen but doesn't belong to Authentication's `data/`/`domain/` layers, since it has no backend call of its own.
+`PasswordValidator` (`core/utils/`) is a similar app-wide utility rather than a feature-scoped one: it's consumed by Authentication's Register screen but doesn't belong to Authentication's `data/`/`domain/` layers, since it has no backend call of its own.
 
 ---
 
@@ -1049,6 +1157,7 @@ lib/
 │   ├── utils/
 │   │   ├── currency_utils.dart
 │   │   ├── date_utils.dart
+│   │   ├── ingredient_display.dart
 │   │   └── password_validator.dart
 │   └── widgets/
 │       ├── confirm_dialog.dart
@@ -1177,6 +1286,51 @@ lib/
 │   │               day_stab_strip.dart
 │   │               meal_plan_entry_card.dart
 │   │
+│   ├── weekly_plan/
+│   │   ├── data/
+│   │   │   │   weekly_plan_dependencies.dart
+│   │   │   ├── datasources/
+│   │   │   │       weekly_plan_remote_datasource.dart
+│   │   │   ├── models/
+│   │   │   │       weekly_plan_draft_model.dart
+│   │   │   │       weekly_plan_request.dart
+│   │   │   └── repositories/
+│   │   │           weekly_plan_repository_impl.dart
+│   │   ├── domain/
+│   │   │   └── repositories/
+│   │   │           weekly_plan_repository.dart
+│   │   └── presentation/
+│   │       ├── providers/
+│   │       │       weekly_plan_provider.dart
+│   │       ├── screens/
+│   │       │       weekly_plan_draft_screen.dart
+│   │       └── widgets/
+│   │               swap_meal_sheet.dart
+│   │               weekly_plan_loading_state.dart
+│   │               weekly_plan_slot_card.dart
+│   │               weekly_plan_summary_card.dart
+│   │
+│   ├── savings/
+│   │   ├── data/
+│   │   │   │   savings_dependencies.dart
+│   │   │   ├── datasources/
+│   │   │   │       savings_remote_datasource.dart
+│   │   │   ├── models/
+│   │   │   │       savings_summary_model.dart
+│   │   │   └── repositories/
+│   │   │           savings_repository_impl.dart
+│   │   ├── domain/
+│   │   │   └── repositories/
+│   │   │           savings_repository.dart
+│   │   └── presentation/
+│   │       ├── providers/
+│   │       │       savings_provider.dart
+│   │       ├── screens/
+│   │       │       savings_screen.dart
+│   │       └── widgets/
+│   │               savings_daily_list.dart
+│   │               savings_verdict_card.dart
+│   │
 │   ├── recommendations/
 │   │   ├── data/
 │   │   │   │   recommendation_dependencies.dart
@@ -1289,7 +1443,8 @@ The application supports:
 * ✅ Floating pill-style sort toggle on Recommendations (Week 7)
 * ✅ Nutrition section (Meal Detail) and nutrition badge (recommendation cards) (Week 8)
 * ✅ Live password-strength checklist on Register, with animated pill ticks and auto-collapse on completion
-* ✅ Redesigned Grocery List item cards — circular check indicator, colored accent stripe, per-item and total cost display
+* ✅ Redesigned Grocery List item cards: circular check indicator, colored accent stripe, per-item and total cost display
+* ✅ Savings screen built on the shared theme: flat `Card` surfaces, theme text styles, underline period tabs, and color reserved for money (green for saved, burnt orange for on or over budget)
 
 ### Brand Colors
 
@@ -1301,7 +1456,7 @@ The primary visual identity uses warm food-inspired colors:
 * Olive Green
 * Green
 
-The authentication, profile, pantry, meals, meal planner, recommendations, grocery list, favorites, settings, and home screens have been styled to maintain a consistent visual language.
+The authentication, profile, pantry, meals, meal planner, weekly plan, savings, recommendations, grocery list, favorites, settings, and home screens have been styled to maintain a consistent visual language.
 
 ---
 
@@ -1323,6 +1478,10 @@ FastAPI
 ├── Meals
 │
 ├── Meal Planner
+│
+├── Weekly Plan
+│
+├── Savings
 │
 ├── Recommendations
 │
@@ -1363,13 +1522,13 @@ FastAPI
 Supabase Storage
 ```
 
-Settings does not call any dedicated backend endpoint — the theme preference lives entirely client-side (`SharedPreferences`), and sign-out reuses the existing Supabase Auth flow already used by Authentication.
+Settings does not call any dedicated backend endpoint: the theme preference lives entirely client-side (`SharedPreferences`), and sign-out reuses the existing Supabase Auth flow already used by Authentication.
 
-Password-reset link handling also does not go through the FastAPI backend — it's a Supabase Auth-native flow (Supabase sends the email and hosts the reset page); the app only triggers `POST` to Supabase's reset-request endpoint via the Supabase Flutter SDK.
+Password-reset link handling also does not go through the FastAPI backend: it's a Supabase Auth-native flow (Supabase sends the email and hosts the reset page); the app only triggers `POST` to Supabase's reset-request endpoint via the Supabase Flutter SDK.
 
 ---
 
-# 📊 Week 6 Application Flow
+# 📊 Application Flow
 
 ```text
 Login
@@ -1388,7 +1547,8 @@ Meal Details  Add/Edit    Available Ingredients
    ↑           Entry              │
    │              ↓                ↓
    │         Grocery List   Recommendations
-   │                                │
+   │         Weekly Plan            │
+   │         Savings                │
    └────────────────────────────────┘
                                      ↓
                               Meal Details
@@ -1413,6 +1573,20 @@ Business Rules
 Ranked Recommendations
 ```
 
+Weekly Plan builds on the same inputs and feeds the Meal Planner:
+
+```text
+Profile (budget, skill, allergies)
++
+Pantry
++
+Meals
+      ↓
+Draft week (slot by slot, swappable)
+      ↓
+Saved as Meal Planner entries
+```
+
 Grocery List is derived using:
 
 ```text
@@ -1427,7 +1601,19 @@ Required − Available (priced where known)
 Grocery List (+ estimated cost)
 ```
 
-Favorites is independent of the planning pipeline — a meal can be favorited without ever being scheduled:
+Savings is derived using:
+
+```text
+Meal Planner (week or month)
++
+Meal estimated costs
++
+Budget per meal
+      ↓
+Verdict + daily breakdown + full-period projection
+```
+
+Favorites is independent of the planning pipeline: a meal can be favorited without ever being scheduled:
 
 ```text
 Meal Card / Meal Details
@@ -1437,7 +1623,7 @@ Favorite Toggle
 Favorites Screen
 ```
 
-Nutrition (Week 8) is also independent of the planning pipeline — it is computed per meal for the signed-in user and shown wherever a meal is shown in detail or recommended:
+Nutrition (Week 8) is also independent of the planning pipeline: it is computed per meal for the signed-in user and shown wherever a meal is shown in detail or recommended:
 
 ```text
 Profile (DOB, sex, activity level)
@@ -1498,24 +1684,27 @@ Implemented and tested:
 * ✅ Settings: theme preference persists across app restart
 * ✅ Settings: sign out clears session and routes to Login
 * ✅ Recommendations: "Best Match" / "Lowest Cost" sort toggle (Week 7)
-* ✅ Recommendations: affordability filter — meals over the budget per meal are excluded (Week 7)
+* ✅ Recommendations: affordability filter, meals over the budget per meal are excluded (Week 7)
 * ✅ Consistent peso formatting across all money displays (Week 7)
 * ✅ Profile Setup and Edit both require a physical activity level (Week 7)
-* ✅ Budget-per-meal rename verified end-to-end — no stale `daily_budget`/`dailyBudget` references in requests or responses
+* ✅ Budget-per-meal rename verified end-to-end: no stale `daily_budget`/`dailyBudget` references in requests or responses
 * ✅ Password Register submit blocked with a listing of unmet rules until every password requirement is satisfied
 * ✅ Password live checklist collapses after all rules are met, and reappears if the password is edited back to invalid
 * ✅ Nutrition: backend adequacy logic verified by hand calculation and through the evaluation harness (Week 8)
+* ✅ Savings: week and month periods, loading/error/retry, and the empty state when no meals are planned **[confirm]**
 
 ### Not yet verified
 
-* 🔲 Ingredient-unit auto-detection for the ambiguous case (an ingredient used with 2+ different units across meals) — not yet exercised against real seed data
+* 🔲 Ingredient-unit auto-detection for the ambiguous case (an ingredient used with 2+ different units across meals): not yet exercised against real seed data
 * 🔲 Grocery list correctness against a fully populated week (multiple meals/slots, overlapping ingredients)
 * 🔲 Favorites behavior when the underlying meal is deleted from the catalog (cascade is implemented backend-side but not exercised end-to-end from the app)
-* 🔲 Automated unit tests for `scoring.py` — cooking-skill scoring was verified manually only (Swagger + in-app)
+* 🔲 Automated unit tests for `scoring.py`: cooking-skill scoring was verified manually only (Swagger + in-app)
 * 🔲 Meal servings, ingredient quantities, cost, and calories normalized to a 1-serving baseline (Week 7, Day 4)
-* 🔲 Nutrition UI in the non-standard states: activity level not set, unavailable results, and staple meals (Garlic Fried Rice) — confirm end-to-end in the app
-* 🔲 Automated tests for the Nutrition feature (backend and Flutter) — verification so far is manual
-* 🔲 Automated tests for `PasswordValidator` — verification so far is manual, in-app only
+* 🔲 Nutrition UI in the non-standard states: activity level not set, unavailable results, and staple meals (Garlic Fried Rice), to be confirmed end-to-end in the app
+* 🔲 Automated tests for the Nutrition feature (backend and Flutter): verification so far is manual
+* 🔲 Automated tests for `PasswordValidator`: verification so far is manual, in-app only
+* 🔲 Weekly Plan: swapping a meal and saving a draft into the Meal Planner, exercised across edge cases (empty pantry, tight budget, allergies) **[confirm]**
+* 🔲 Savings: behavior across month boundaries and for weeks that contain past days **[confirm]**
 
 ---
 
@@ -1533,7 +1722,7 @@ Make sure you have:
 * Supabase authentication configured
 * Supabase PostgreSQL configured
 * Supabase Storage configured
-* Supabase Auth password policy configured to match `PasswordValidator`'s rules (min 8 characters, upper/lowercase, number, symbol) — see Password Security above
+* Supabase Auth password policy configured to match `PasswordValidator`'s rules (min 8 characters, upper/lowercase, number, symbol). See Password Security above
 
 The backend must have the required environment variables configured, including:
 
@@ -1545,7 +1734,7 @@ SUPABASE_SERVICE_ROLE_KEY
 
 The service-role key is **server-side only** and must never be included in the Flutter application.
 
-The backend database must be fully migrated (`alembic upgrade head`) — Nutrition depends on the `ingredient_food_groups` table and its seed data, and Grocery List pricing depends on `ingredient_prices` being seeded.
+The backend database must be fully migrated (`alembic upgrade head`): Nutrition depends on the `ingredient_food_groups` table and its seed data, and Grocery List pricing depends on `ingredient_prices` being seeded.
 
 The `shared_preferences` package is required for both the theme-preference (Settings) and grocery-checklist persistence features. Confirm it is listed in `pubspec.yaml`.
 
@@ -1601,7 +1790,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 
 # 🗺️ Roadmap
 
-## Phase 1 — Authentication ✅
+## Phase 1: Authentication ✅
 
 * [x] Project structure
 * [x] Supabase integration
@@ -1617,7 +1806,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Profile-status routing
 * [x] Password strength validator + live checklist (Week 7)
 
-## Phase 2 — Profile ✅
+## Phase 2: Profile ✅
 
 * [x] Profile model
 * [x] Profile datasource
@@ -1634,9 +1823,10 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Disliked ingredients
 * [x] Budget per meal (renamed from daily budget)
 * [x] Cooking skill level
+* [x] Cooking skill level descriptions
 * [x] Profile Setup onboarding
 
-## Phase 3 — Core Application Features ✅
+## Phase 3: Core Application Features ✅
 
 * [x] Home screen
 * [x] Bottom navigation
@@ -1648,11 +1838,12 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Meal list
 * [x] Meal search
 * [x] Meal details
+* [x] Estimated cost shown first on Meal Details
 * [x] Ingredients
 * [x] Cooking instructions
 * [x] Seed meals
 
-## Phase 4 — Recommendation System ✅
+## Phase 4: Recommendation System ✅
 
 * [x] Recommendation data model
 * [x] Recommendation repository
@@ -1673,7 +1864,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Recommendation refresh after pantry changes
 * [x] Match/coverage display
 
-## Phase 5 — Integration & Polish ✅
+## Phase 5: Integration & Polish ✅
 
 * [x] Home → Meals navigation
 * [x] Home → Pantry navigation
@@ -1690,7 +1881,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Cached network images
 * [x] Final Week 2 screen polish
 
-## Phase 6 — Meal Planner ✅
+## Phase 6: Meal Planner ✅
 
 * [x] `MealPlanEntry` backend model + migration
 * [x] Meal relationship fix (`lazy="joined"`)
@@ -1708,7 +1899,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Snackbar feedback (shared extension)
 * [x] Bottom navigation integration
 
-## Phase 7 — Grocery List ✅
+## Phase 7: Grocery List ✅
 
 * [x] `GroceryListItem` / `GroceryListResponse` schemas
 * [x] Required-ingredient aggregation across a date range
@@ -1727,22 +1918,22 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Flutter models/UI updated to surface cost per item and total
 * [x] Redesigned item card with circular check, accent stripe, capitalized ingredient names
 
-## Phase 8 — Ingredient/Unit Matching ✅
+## Phase 8: Ingredient/Unit Matching ✅
 
 * [x] Identified exact-string `(ingredient, unit)` matching as a shared fragility across Recommendations, Pantry, and Grocery List
-* [x] `GET /meals/units` endpoint — backend-sourced canonical unit list
+* [x] `GET /meals/units` endpoint: backend-sourced canonical unit list
 * [x] `GET /meals/ingredients/suggestions` extended to return per-ingredient known units, not just names
 * [x] Pantry dialog: unit selection constrained to `ChoiceChip`s instead of free text
 * [x] Single-unit ingredients auto-select their unit on suggestion pick
 * [x] Multi-unit ingredients narrow the picker to only their known units
 * [x] Fallback to full unit list for unmatched/new ingredients
 
-## Phase 9 — Favorites & Settings ✅
+## Phase 9: Favorites & Settings ✅
 
 * [x] `Favorite` backend model with unique `(profile_id, meal_id)` constraint
 * [x] Cascading deletion on both `profile_id` and `meal_id`
 * [x] Idempotent add/remove service logic
-* [x] Router (`/favorites`) — add, list, remove
+* [x] Router (`/favorites`): add, list, remove
 * [x] Alembic migration for `favorites`
 * [x] Flutter entity/model, datasource, repository
 * [x] Riverpod `FavoritesController` with optimistic add/remove
@@ -1756,7 +1947,7 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Sign Out with confirmation dialog, relocated into Settings
 * [x] Settings and Favorites entry points wired into Profile/Home
 
-## Phase 10 — Week 7 Fixes 🚧 (Day 4 [servings] outstanding)
+## Phase 10: Week 7 Fixes 🚧 (Day 4 [servings] outstanding)
 
 * [x] Meal Planner past-date/slot guard (backend `400` + client-side disabled dates/slots)
 * [x] Centralized meal-planner cutoff constants (backend + client)
@@ -1768,15 +1959,15 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [x] Floating "Best Match" / "Lowest Cost" sort toggle
 * [x] Client-side re-sort architecture in `RecommendationController`
 * [x] Cooking skill scoring manually verified against all 20 seeded meals
-* [x] `physical_activity_level` on Profile — backend enum + migration, required on create
+* [x] `physical_activity_level` on Profile: backend enum + migration, required on create
 * [x] Physical activity level in Flutter (`ProfileOptions`, shared `ProfileForm`, create/update requests, Profile view)
 * [x] `PasswordValidator` + live `PasswordRequirements` checklist on Register
 * [x] Password reset policy synced with Supabase Auth dashboard configuration
 * [x] `daily_budget` → `budget_per_meal` rename propagated through the entire Flutter codebase
 * [x] Grocery List pricing surfaced in Flutter models and UI
-* [ ] Meal servings normalization — 1-serving baseline across all 20 seeded meals (ingredient quantities, cost, calories)
+* [ ] Meal servings normalization: 1-serving baseline across all 20 seeded meals (ingredient quantities, cost, calories)
 
-## Phase 11 — Nutrition 🚧 (results pending final data verification)
+## Phase 11: Nutrition 🚧 (results pending final data verification)
 
 * [x] PDRI 2015 energy table and daily caloric requirement (sex + age bracket, scaled for activity level)
 * [x] `ingredient_food_groups` reference table and seed (Go / Grow / Glow / other)
@@ -1795,13 +1986,33 @@ The Supabase service-role key belongs exclusively on the FastAPI backend.
 * [ ] Flutter display for staple meals
 * [ ] Final evaluation rerun after servings/calories normalization
 
+## Phase 12: Weekly Planning ✅
+
+* [x] `WeeklyPlanRequest` and `WeeklyPlanDraftModel`
+* [x] Weekly plan datasource, repository, and provider
+* [x] Draft screen with a card per slot
+* [x] Swap-meal bottom sheet
+* [x] Summary card and loading state
+* [x] Save the draft into the Meal Planner **[confirm]**
+
+## Phase 13: Savings ✅
+
+* [x] `SavingsSummaryModel`, `DailySavingsModel`, and `SavingsProjectionModel`
+* [x] Savings datasource, repository, and `SavingsController`
+* [x] Week / month period selector
+* [x] Verdict card (saving, on budget, over budget)
+* [x] Full-period projection card
+* [x] Day-by-day breakdown with today highlighted
+* [x] Loading, error, retry, and empty states
+* [x] UI redesigned on the shared theme with money-coded color (green saved, burnt orange over)
+
 ---
 
 # 🚧 Future / Not Yet Implemented Features
 
 The following features are **not yet implemented**.
 
-### 🔎 Advanced Meal Search & Filtering — 🔲 Not Yet Implemented
+### 🔎 Advanced Meal Search & Filtering: 🔲 Not Yet Implemented
 
 * [ ] Food category filtering
 * [ ] Cost filtering
@@ -1809,7 +2020,7 @@ The following features are **not yet implemented**.
 * [ ] Difficulty filtering
 * [ ] More advanced ingredient filtering
 
-### 🍱 Food Categories — 🔲 Not Yet Implemented
+### 🍱 Food Categories: 🔲 Not Yet Implemented
 
 * [ ] Breakfast
 * [ ] Lunch
@@ -1817,7 +2028,7 @@ The following features are **not yet implemented**.
 * [ ] Snacks
 * [ ] Category-based filtering
 
-### 🥗 Detailed Nutrition Metrics — 🔲 Not Yet Implemented
+### 🥗 Detailed Nutrition Metrics: 🔲 Not Yet Implemented
 
 Caloric and food-group adequacy are implemented (see Nutrition above). Per-nutrient detail is not:
 
@@ -1828,14 +2039,14 @@ Caloric and food-group adequacy are implemented (see Nutrition above). Per-nutri
 
 Basic calorie information is available for seeded meals.
 
-### 🔔 Notifications — 🔲 Not Yet Implemented
+### 🔔 Notifications: 🔲 Not Yet Implemented
 
 * [ ] Meal recommendations notifications
 * [ ] Pantry reminders
 * [ ] Meal-planning reminders
 * [ ] Other application notifications
 
-### 🤖 AI-Assisted Recommendations — 🔲 Not Yet Implemented
+### 🤖 AI-Assisted Recommendations: 🔲 Not Yet Implemented
 
 The current recommendation system intentionally uses deterministic and explainable business rules.
 
@@ -1848,7 +2059,7 @@ Potential future functionality:
 * [ ] AI-assisted ingredient substitutions
 * [ ] Personalized recommendation explanations
 
-### 🛠️ Admin Functionality — 🔲 Not Yet Implemented
+### 🛠️ Admin Functionality: 🔲 Not Yet Implemented
 
 * [ ] Admin authentication
 * [ ] Meal management
@@ -1856,16 +2067,16 @@ Potential future functionality:
 * [ ] Meal image management
 * [ ] Recommendation monitoring
 
-### 🔄 Grocery Checklist Cloud Sync — 🔲 Not Yet Implemented
+### 🔄 Grocery Checklist Cloud Sync: 🔲 Not Yet Implemented
 
 * [ ] Persist checklist state server-side instead of `SharedPreferences`
 * [ ] Sync checklist across multiple devices
 
-### 📏 Multi-Unit Ingredient Auto-Detection — 🔲 Not Yet Verified
+### 📏 Multi-Unit Ingredient Auto-Detection: 🔲 Not Yet Verified
 
 * [ ] Exercise the ambiguous case (an ingredient used with 2+ different units across meals) against real seed data
 
-### 💰 Sourced Grocery Prices — 🔲 Not Yet Implemented
+### 💰 Sourced Grocery Prices: 🔲 Not Yet Implemented
 
 * [ ] Replace placeholder/estimated `ingredient_prices` data with real, sourced pricing (e.g. DTI price monitoring)
 
@@ -1873,7 +2084,7 @@ Potential future functionality:
 
 # 📌 Project Status
 
-> **Current milestone: Week 6 Complete 🎉 — Week 7 Nearly Complete (Day 4 [servings] outstanding) — Week 8 (Nutrition) Built, results pending final data verification**
+> **Current milestone: Week 6 Complete 🎉, Week 7 Nearly Complete (Day 4 [servings] outstanding), Week 8 (Nutrition) Built, Weekly Planning and Savings added, results pending final data verification**
 
 TipidMeal now has a working core application flow consisting of:
 
@@ -1886,7 +2097,9 @@ Home ──→ Favorites
       ↓
 Meals ──→ Nutrition
       ↓
-Meal Planner
+Meal Planner ──→ Weekly Plan
+      ↓
+Savings
       ↓
 Grocery List
       ↓
@@ -1896,6 +2109,13 @@ Deterministic Recommendations (+ Nutrition badge)
       ↓
 Meal Details
 ```
+
+Completed since the last update:
+
+* ✅ Weekly Plan: generate a draft week, review it slot by slot, swap meals, and save it into the Meal Planner
+* ✅ Meal Detail now shows the estimated cost first
+* ✅ Cooking skill levels now show a short description in Profile Setup and Edit
+* ✅ Savings ("Can I Save?"): week/month verdict, projection, and day-by-day breakdown, restyled on the shared theme with green and burnt orange
 
 Completed in Week 8:
 
@@ -1910,17 +2130,17 @@ Completed in Week 8:
 Completed in Week 7:
 
 * ✅ Meal Planner past-date/slot guard (backend + client)
-* ✅ `BadRequestException` — backend guard messages now surface clearly in the UI
+* ✅ `BadRequestException`: backend guard messages now surface clearly in the UI
 * ✅ Consistent `₱0.00`-style peso formatting via a single shared formatter
 * ✅ Cost-based recommendation sorting (`sort_by=cost`) with a floating "Best Match" / "Lowest Cost" toggle
 * ✅ Client-side re-sort for instant, race-free toggling
-* ✅ Affordability hard filter — meals over the budget per meal are excluded
+* ✅ Affordability hard filter: meals over the budget per meal are excluded
 * ✅ Fallback meals now returned by the backend and tiered after `adapt` meals
 * ✅ Cooking skill scoring manually verified against all 20 seeded meals
-* ✅ Physical activity level on Profile (required at setup, editable later) — feeds Week 8's Nutrition feature
+* ✅ Physical activity level on Profile (required at setup, editable later), feeding Week 8's Nutrition feature
 * ✅ Live password-strength checklist on Register, synced with Supabase Auth's password policy
 * ✅ `daily_budget` → `budget_per_meal` rename, fully propagated through Flutter
-* ✅ Grocery List pricing — per-item estimated cost and running total, redesigned item card
+* ✅ Grocery List pricing: per-item estimated cost and running total, redesigned item card
 
 Completed in Week 6:
 
@@ -1944,7 +2164,7 @@ Completed in earlier weeks (carried forward):
 
 ### Current Limitations / Remaining Work
 
-* 🔲 Meal servings normalization to a 1-serving baseline (Week 7, Day 4) — seeded servings, quantities, cost, and calories are still sample data, so nutrition results are provisional
+* 🔲 Meal servings normalization to a 1-serving baseline (Week 7, Day 4): seeded servings, quantities, cost, and calories are still sample data, so nutrition results and savings figures are provisional
 * 🔲 Final Objective 4 evaluation rerun once the servings/calories data is normalized
 * 🔲 Flutter display for staple meals (`is_staple`)
 * 🔲 Automated unit tests for `scoring.py`, `PasswordValidator`, and for the Nutrition feature (all verified manually only)
@@ -1954,9 +2174,9 @@ Completed in earlier weeks (carried forward):
 * 🔲 Notifications
 * 🔲 AI-assisted recommendations
 * 🔲 Admin functionality
-* 🔲 Multi-unit ingredient auto-detection — not yet exercised against real ambiguous data
+* 🔲 Multi-unit ingredient auto-detection: not yet exercised against real ambiguous data
 * 🔲 Grocery checklist cloud sync (currently local-only via `SharedPreferences`)
-* 🔲 Favorites behavior on meal deletion — not yet exercised end-to-end from the app
+* 🔲 Favorites behavior on meal deletion: not yet exercised end-to-end from the app
 * 🔲 Sourced (non-placeholder) grocery ingredient prices
 
 These remain the primary targets for subsequent phases.

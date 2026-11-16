@@ -4,7 +4,7 @@ class ApiConstants {
   ApiConstants._();
 
   // Base URL of the TipidMeal backend API.
-  static const String baseUrl = 'https://tipidmeal-backend-2.onrender.com/api/v1';  // https://tipidmeal-backend-1.onrender.com/api/v1 http://127.0.0.1:8000/api/v1
+  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';  // https://tipidmeal-backend-1.onrender.com/api/v1 http://127.0.0.1:8000/api/v1
 
   // Profile endpoints.
   static const String profiles = '/profiles';
@@ -26,8 +26,15 @@ class ApiConstants {
   static const String mealPlanner = '/meal-planner';
   static String mealPlanEntryDetail(String id) => '/meal-planner/$id';
 
+  // Weekly Plan endpoints
+  static const String weeklyPlanGenerate = '/weekly-plan/generate';
+  static const String weeklyPlanAccept = '/weekly-plan/accept';
+
   // Grocery list endpoint.
   static const String groceryList = '/grocery-list';
+
+  // Savings endpoint.
+  static const String savingsSummary = '/savings/summary';
 
   // Favorite endpoints.
   static const String favorites = '/favorites';
