@@ -3,23 +3,25 @@ import 'package:meal_recommendation_app/features/meal_planner/data/meal_planner_
 import 'package:meal_recommendation_app/features/meal_planner/data/models/meal_plan_entry_model.dart';
 import 'package:meal_recommendation_app/features/meal_planner/data/models/meal_plan_entry_request.dart';
 
+// Provides the MealPlanController and its asynchronous weekly plan state.
 final mealPlanControllerProvider =
     NotifierProvider<MealPlanController, AsyncValue<WeeklyPlanModel?>>(
   MealPlanController.new,
 );
 
+// Manages meal plan operations and keeps the weekly plan state updated.
 class MealPlanController extends Notifier<AsyncValue<WeeklyPlanModel?>> {
+  // Stores the date range of the currently displayed week for later reloads.
   DateTime? _lastStartDate;
   DateTime? _lastEndDate;
 
+  // Sets the initial state to indicate that no weekly plan has been loaded yet.
   @override
   AsyncValue<WeeklyPlanModel?> build() {
     return const AsyncData(null);
   }
 
-  /// Full load with a loading state — used on first mount and week
-  /// navigation, where showing a spinner while the whole week's data
-  /// changes is expected and not jarring.
+  // Loads a week and displays a loading state while waiting for the API response.
   Future<void> loadWeek({
     required DateTime startDate,
     required DateTime endDate,
@@ -39,11 +41,7 @@ class MealPlanController extends Notifier<AsyncValue<WeeklyPlanModel?>> {
     }
   }
 
-  /// Refetches the current week WITHOUT flashing a loading spinner —
-  /// the existing data stays on screen until the new data is ready,
-  /// then swaps in. Used after add/update, where we don't have enough
-  /// info client-side to safely predict the server's response (slot
-  /// ordering, recalculated totals, etc.).
+  // Reloads the current week without clearing the existing data or showing a loading spinner.
   Future<void> _silentReloadCurrentWeek() async {
     if (_lastStartDate == null || _lastEndDate == null) return;
     try {
@@ -58,23 +56,21 @@ class MealPlanController extends Notifier<AsyncValue<WeeklyPlanModel?>> {
     }
   }
 
+  // Creates a meal plan entry, then reloads the current week to get updated server data.
   Future<void> addEntry(MealPlanEntryCreateRequest request) async {
     final repository = ref.read(mealPlannerRepositoryProvider);
     await repository.createMealPlanEntry(request);
     await _silentReloadCurrentWeek();
   }
 
+  // Updates a meal plan entry, then reloads the current week to reflect the server response.
   Future<void> updateEntry(String id, MealPlanEntryUpdateRequest request) async {
     final repository = ref.read(mealPlannerRepositoryProvider);
     await repository.updateMealPlanEntry(id, request);
     await _silentReloadCurrentWeek();
   }
 
-  /// Removes the entry from the in-memory list immediately (so the
-  /// card disappears the instant the user confirms), then deletes it
-  /// on the server in the background. If the server call fails, the
-  /// previous state is restored and the error is rethrown so the
-  /// caller can show a message.
+  // Removes an entry from the UI immediately and restores it if the server deletion fails.
   Future<void> removeEntry(String id) async {
     final previousState = state;
     final currentPlan = state.value;
@@ -90,10 +86,12 @@ class MealPlanController extends Notifier<AsyncValue<WeeklyPlanModel?>> {
         }
       }
 
+      // Adjusts the total estimated cost if the entry was found.
       final adjustedTotal = removed == null
           ? currentPlan.estimatedCostTotal
           : currentPlan.estimatedCostTotal - removed.meal.estimatedCost;
 
+      // Updates the UI immediately using the remaining entries.
       state = AsyncData(
         WeeklyPlanModel(
           startDate: currentPlan.startDate,
@@ -108,7 +106,7 @@ class MealPlanController extends Notifier<AsyncValue<WeeklyPlanModel?>> {
       final repository = ref.read(mealPlannerRepositoryProvider);
       await repository.deleteMealPlanEntry(id);
     } catch (e) {
-      // Roll back to the pre-delete state so the entry reappears.
+      // Restores the previous state if the deletion fails.
       state = previousState;
       rethrow;
     }

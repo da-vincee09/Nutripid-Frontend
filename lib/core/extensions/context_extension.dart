@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+// Adds reusable SnackBar functions directly to BuildContext.
 extension ContextExtensions on BuildContext {
+  // Displays a customizable success or error notification.
   void showSnackBar(
     String message, {
     bool isError = false,
@@ -12,6 +14,7 @@ extension ContextExtensions on BuildContext {
     final resolvedColor = backgroundColor ??
         (isError ? theme.colorScheme.error : theme.colorScheme.primary);
 
+    // Replaces the current SnackBar before displaying the new one.
     ScaffoldMessenger.of(this)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -43,10 +46,12 @@ extension ContextExtensions on BuildContext {
       );
   }
 
+  // Displays an error notification.
   void showErrorSnackBar(String message, {double bottomMargin = 16}) {
     showSnackBar(message, isError: true, bottomMargin: bottomMargin);
   }
 
+  // Displays a success notification.
   void showSuccessSnackBar(String message, {double bottomMargin = 16}) {
     showSnackBar(message, backgroundColor: Colors.green, bottomMargin: bottomMargin);
   }

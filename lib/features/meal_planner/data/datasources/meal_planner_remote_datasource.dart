@@ -4,6 +4,7 @@ import 'package:meal_recommendation_app/core/networks/api_constants.dart';
 import 'package:meal_recommendation_app/features/meal_planner/data/models/meal_plan_entry_model.dart';
 import 'package:meal_recommendation_app/features/meal_planner/data/models/meal_plan_entry_request.dart';
 
+// Defines the required operations for communicating with the meal planner API.
 abstract class MealPlannerRemoteDatasource {
   Future<MealPlanEntryModel> createMealPlanEntry(MealPlanEntryCreateRequest request);
   Future<WeeklyPlanModel> getMealPlan({required DateTime startDate, required DateTime endDate});
@@ -12,12 +13,15 @@ abstract class MealPlannerRemoteDatasource {
   Future<void> deleteMealPlanEntry(String id);
 }
 
+// Implements meal planner API operations using Dio.
 class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
   final Dio _dio;
 
+  // Receives the configured Dio client through dependency injection.
   // ignore: prefer_initializing_formals
   MealPlannerRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
+  // Creates a meal plan entry by sending its request data to the backend.
   @override
   Future<MealPlanEntryModel> createMealPlanEntry(
     MealPlanEntryCreateRequest request,
@@ -33,6 +37,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
     }
   }
 
+  // Retrieves a weekly meal plan within the specified date range.
   @override
   Future<WeeklyPlanModel> getMealPlan({
     required DateTime startDate,
@@ -52,6 +57,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
     }
   }
 
+  // Retrieves one meal plan entry using its ID.
   @override
   Future<MealPlanEntryModel> getMealPlanEntry(String id) async {
     try {
@@ -62,6 +68,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
     }
   }
 
+  // Updates an existing meal plan entry using its ID and new request data.
   @override
   Future<MealPlanEntryModel> updateMealPlanEntry(
     String id,
@@ -78,6 +85,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
     }
   }
 
+  // Deletes a meal plan entry using its ID.
   @override
   Future<void> deleteMealPlanEntry(String id) async {
     try {
@@ -87,6 +95,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
     }
   }
 
+  // Converts Dio errors into the application's custom API exceptions.
   ApiException _mapDioException(DioException e) {
     final isConnectivityIssue = switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -112,11 +121,8 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
       case 401:
         return const UnauthorizedException();
       case 404:
-        // Backend raises a plain 404 for both "profile not found" and
-        // "entry not found" — no dedicated exception type yet, unlike
-        // MealNotFoundException in the meals feature. Falls through to
-        // ServerException for now; add a MealPlanEntryNotFoundException
-        // to api_exception.dart if the UI needs to distinguish this case.
+        // The backend uses 404 for both missing profiles and missing entries.
+        // These are currently handled as a general server exception.
         return const ServerException();
       case 422:
         final errors = e.response?.data?['detail'] as List<dynamic>? ?? [];
@@ -127,6 +133,7 @@ class MealPlannerRemoteDatasourceImpl implements MealPlannerRemoteDatasource {
   }
 }
 
+// Converts a DateTime into the YYYY-MM-DD format expected by the backend.
 String _formatDate(DateTime date) {
   final y = date.year.toString().padLeft(4, '0');
   final m = date.month.toString().padLeft(2, '0');

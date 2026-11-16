@@ -1,4 +1,4 @@
-/// One password rule: a short label users read, plus the check behind it.
+// Defines a password requirement with a display label and validation function.
 class PasswordRule {
   const PasswordRule({required this.label, required this.isMet});
 
@@ -6,24 +6,20 @@ class PasswordRule {
   final bool Function(String password) isMet;
 }
 
-/// Single source of truth for password strength.
-///
-/// Keep this in sync with the Auth settings in the Supabase dashboard
-/// (minimum length + required character types), so a password that passes
-/// this form is never rejected by the server.
+// Centralizes the password requirements and validation logic.
 class PasswordValidator {
   PasswordValidator._();
 
   static const int minLength = 8;
 
-  // Symbols Supabase accepts:
-  // !@#$%^&*()_+-=[]{};'\:"|<>?,./`~
+  // Defines the accepted symbols and patterns for each character type.
   static final RegExp _symbol =
       RegExp(r'''[!@#$%^&*()_+\-=\[\]{};':"\\|<>?,./`~]''');
   static final RegExp _upper = RegExp(r'[A-Z]');
   static final RegExp _lower = RegExp(r'[a-z]');
   static final RegExp _digit = RegExp(r'[0-9]');
 
+  // Lists all password requirements and how each one is checked.
   static final List<PasswordRule> rules = [
     PasswordRule(
       label: 'At least $minLength characters',
@@ -47,11 +43,11 @@ class PasswordValidator {
     ),
   ];
 
-  /// True when every rule is satisfied.
+  // Returns true only when all password requirements are satisfied.
   static bool isValid(String password) =>
       rules.every((rule) => rule.isMet(password));
 
-  /// Labels of the rules the password still fails (empty when valid).
+  // Returns the labels of requirements that the password has not satisfied.
   static List<String> unmetLabels(String password) => [
         for (final rule in rules)
           if (!rule.isMet(password)) rule.label,

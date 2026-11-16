@@ -6,6 +6,7 @@ import 'package:meal_recommendation_app/core/utils/currency_utils.dart';
 import 'package:meal_recommendation_app/features/favorites/presentation/widgets/favorite_button.dart';
 import 'package:meal_recommendation_app/features/meals/data/models/meal_model.dart';
 
+// Displays meal information in a reusable card and supports Riverpod.
 class MealCard extends ConsumerWidget {
   final MealModel meal;
   final VoidCallback onTap;
@@ -18,6 +19,7 @@ class MealCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Gets the current app theme for consistent styling.
     final theme = Theme.of(context);
 
     return Material(
@@ -25,11 +27,13 @@ class MealCard extends ConsumerWidget {
       borderRadius: BorderRadius.circular(18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
+        // Calls the parent-provided callback when the card is tapped.
         onTap: onTap,
         child: SizedBox(
           height: 120,
           child: Row(
             children: [
+              // Displays the meal image and overlays the favorite button.
               Stack(
                 children: [
                   SizedBox(
@@ -39,14 +43,18 @@ class MealCard extends ConsumerWidget {
                         ? CachedNetworkImage(
                             imageUrl: meal.imageUrl!,
                             fit: BoxFit.cover,
+                            // Shows a temporary background while the image loads.
                             placeholder: (context, url) => Container(
                               color: AppColors.burntOrange.withValues(alpha: 0.08),
                             ),
+                            // Shows a placeholder icon if the image fails to load.
                             errorWidget: (context, url, error) =>
                                 _placeholderIcon(),
                           )
                         : _placeholderIcon(),
                   ),
+
+                  // Positions the favorite button over the top-right of the image.
                   Positioned(
                     top: 2,
                     right: 2,
@@ -69,6 +77,7 @@ class MealCard extends ConsumerWidget {
                 ],
               ),
 
+              // Uses the remaining horizontal space for meal information.
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -79,6 +88,7 @@ class MealCard extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Displays the meal name and prevents text overflow.
                       Text(
                         meal.name,
                         style: theme.textTheme.titleMedium,
@@ -88,6 +98,7 @@ class MealCard extends ConsumerWidget {
 
                       const SizedBox(height: 8),
 
+                      // Displays cooking time, difficulty, and servings.
                       Wrap(
                         spacing: 8,
                         runSpacing: 4,
@@ -109,6 +120,7 @@ class MealCard extends ConsumerWidget {
 
                       const SizedBox(height: 6),
 
+                      // Displays the estimated meal cost in Philippine pesos.
                       Text(
                         formatPeso(meal.estimatedCost),
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -121,6 +133,7 @@ class MealCard extends ConsumerWidget {
                 ),
               ),
 
+              // Indicates that the card can be opened for more details.
               const Padding(
                 padding: EdgeInsets.only(right: 10),
                 child: Center(
@@ -137,6 +150,7 @@ class MealCard extends ConsumerWidget {
     );
   }
 
+  // Displays a default restaurant icon when the meal image is unavailable.
   Widget _placeholderIcon() {
     return Container(
       color: AppColors.burntOrange.withValues(alpha: 0.1),
@@ -148,6 +162,7 @@ class MealCard extends ConsumerWidget {
   }
 }
 
+// Reusable small label containing an icon and text.
 class _MiniTag extends StatelessWidget {
   final IconData icon;
   final String label;

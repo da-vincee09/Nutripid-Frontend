@@ -1,5 +1,6 @@
 import 'package:meal_recommendation_app/core/utils/ingredient_display.dart';
 
+// Represents a pantry item and its information received from the backend.
 class PantryItemModel {
   final String id;
   final String ingredient;
@@ -8,6 +9,7 @@ class PantryItemModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Initializes a pantry item with all required properties.
   const PantryItemModel({
     required this.id,
     required this.ingredient,
@@ -17,6 +19,7 @@ class PantryItemModel {
     required this.updatedAt,
   });
 
+  // Converts backend JSON data into a PantryItemModel object.
   factory PantryItemModel.fromJson(Map<String, dynamic> json) {
     return PantryItemModel(
       id: json['id'] as String,
@@ -28,12 +31,14 @@ class PantryItemModel {
     );
   }
 
+  // Handles quantity values returned as either String or num.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
     throw FormatException('Unexpected quantity type: ${value.runtimeType}');
   }
 
+  // Converts the pantry item object into a JSON-compatible map.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -45,6 +50,7 @@ class PantryItemModel {
     };
   }
 
+  // Creates a copy of the pantry item with selected properties changed.
   PantryItemModel copyWith({
     String? id,
     String? ingredient,
@@ -63,7 +69,7 @@ class PantryItemModel {
     );
   }
 
-  /// Trims trailing zeros for display (e.g. `500` instead of `500.0`).
+  // Formats whole-number quantities without unnecessary decimal zeros.
   String get displayQuantity {
     if (quantity == quantity.roundToDouble()) {
       return quantity.toInt().toString();
@@ -71,15 +77,16 @@ class PantryItemModel {
     return quantity.toString();
   }
 
-  /// "pork_belly" -> "Pork Belly" — always use this for display,
-  /// keep `ingredient` for API calls and comparisons.
+  // Converts the ingredient name into a readable format for the UI.
   String get displayName => formatIngredientName(ingredient);
 
+  // Provides a readable string representation for debugging.
   @override
   String toString() =>
       'PantryItemModel(id: $id, ingredient: $ingredient, '
       'quantity: $quantity, unit: $unit)';
 
+  // Compares pantry items based on all their property values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -92,6 +99,7 @@ class PantryItemModel {
         other.updatedAt == updatedAt;
   }
 
+  // Generates a hash code using the same properties used in equality.
   @override
   int get hashCode =>
       Object.hash(id, ingredient, quantity, unit, createdAt, updatedAt);

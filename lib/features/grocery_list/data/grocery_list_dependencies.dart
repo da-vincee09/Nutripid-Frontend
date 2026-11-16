@@ -4,6 +4,7 @@ import 'package:meal_recommendation_app/features/grocery_list/data/datasources/g
 import 'package:meal_recommendation_app/features/grocery_list/data/repositories/grocery_list_repository_impl.dart';
 import 'package:meal_recommendation_app/features/grocery_list/domain/repositories/grocery_list_repository.dart';
 
+// Provides the grocery list remote datasource and injects the configured Dio client.
 final groceryListRemoteDatasourceProvider =
     Provider<GroceryListRemoteDatasource>((ref) {
   return GroceryListRemoteDatasourceImpl(
@@ -11,6 +12,7 @@ final groceryListRemoteDatasourceProvider =
   );
 });
 
+// Provides the grocery list repository and injects the remote datasource.
 final groceryListRepositoryProvider = Provider<GroceryListRepository>((ref) {
   return GroceryListRepositoryImpl(
     datasource: ref.watch(groceryListRemoteDatasourceProvider),

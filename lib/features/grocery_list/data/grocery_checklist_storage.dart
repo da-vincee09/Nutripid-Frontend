@@ -1,8 +1,10 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Handles saving, loading, and cleaning up checked grocery checklist items locally.
 class GroceryChecklistStorage {
   static const _keyPrefix = 'grocery_checked_';
 
+  // Creates a unique storage key based on the grocery list's start date.
   static String _keyFor(DateTime startDate) {
     final y = startDate.year.toString().padLeft(4, '0');
     final m = startDate.month.toString().padLeft(2, '0');
@@ -10,21 +12,21 @@ class GroceryChecklistStorage {
     return '$_keyPrefix$y-$m-$d';
   }
 
+  // Loads the checked ingredient names for a specific grocery list date.
   static Future<Set<String>> load(DateTime startDate) async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList(_keyFor(startDate));
     return stored?.toSet() ?? {};
   }
 
+  // Saves the checked ingredient names for a specific grocery list date.
   static Future<void> save(DateTime startDate, Set<String> checked) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_keyFor(startDate), checked.toList());
   }
 
-  /// Deletes checklist keys for weeks older than [maxAgeWeeks]. Call
-  /// once per app launch (see main.dart) — cheap no-op on most runs
-  /// since there's usually nothing to clean up, but keeps old weeks'
-  /// keys from accumulating forever in SharedPreferences.
+  // Removes checklist data belonging to weeks older than the allowed age.
+  // Call once per app launch to prevent old storage keys from accumulating.
   static Future<void> cleanupOldWeeks({int maxAgeWeeks = 8}) async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
@@ -39,13 +41,13 @@ class GroceryChecklistStorage {
       final dateStr = key.substring(_keyPrefix.length);
       final parsed = DateTime.tryParse(dateStr);
 
-      // Malformed keys (shouldn't happen, but defensively) get removed
-      // too rather than left behind forever.
+      // Removes malformed keys and dates older than the cutoff.
       if (parsed == null || parsed.isBefore(cutoff)) {
         keysToRemove.add(key);
       }
     }
 
+    // Deletes the outdated checklist entries from local storage.
     for (final key in keysToRemove) {
       await prefs.remove(key);
     }

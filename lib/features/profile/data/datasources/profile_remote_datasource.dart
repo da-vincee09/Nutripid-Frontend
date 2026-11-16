@@ -7,6 +7,7 @@ import 'package:meal_recommendation_app/features/profile/data/models/profile_cre
 import 'package:meal_recommendation_app/features/profile/data/models/profile_model.dart';
 import 'package:meal_recommendation_app/features/profile/data/models/profile_update_request.dart';
 
+// Defines the operations that the profile datasource must support.
 abstract class ProfileRemoteDatasource {
   Future<ProfileModel> createProfile(ProfileCreateRequest request);
   Future<ProfileModel> getMyProfile();
@@ -14,12 +15,14 @@ abstract class ProfileRemoteDatasource {
   Future<String> uploadProfileImage(File imageFile);
 }
 
+// Defines the operations that the profile datasource must support.
 class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
   final Dio _dio;
 
   // ignore: prefer_initializing_formals
   ProfileRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
+  // Sends profile information to the backend and converts the response into a model.
   @override
   Future<ProfileModel> createProfile(ProfileCreateRequest request) async {
     final json = await _request(
@@ -28,6 +31,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     return ProfileModel.fromJson(json);
   }
 
+  // Retrieves the currently authenticated user's profile.
   @override
   Future<ProfileModel> getMyProfile() async {
     final json = await _request(
@@ -36,6 +40,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     return ProfileModel.fromJson(json);
   }
 
+  // Sends updated profile information to the backend.
   @override
   Future<ProfileModel> updateProfile(ProfileUpdateRequest request) async {
     final json = await _request(
@@ -44,6 +49,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     return ProfileModel.fromJson(json);
   }
 
+  // Reusable helper for executing API requests and handling Dio errors.
   Future<Map<String, dynamic>> _request(
     Future<Response> Function() call,
   ) async {
@@ -54,7 +60,8 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
       throw _mapDioException(e);
     }
   }
-
+  
+  // Converts Dio errors into custom API exceptions used by the application.
   ApiException _mapDioException(DioException e) {
     final isConnectivityIssue = switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -94,6 +101,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     }
   }
 
+  // Uploads a profile image using multipart/form-data and returns its URL.
   @override
   Future<String> uploadProfileImage(File imageFile) async {
     final fileName = imageFile.path.split('/').last;

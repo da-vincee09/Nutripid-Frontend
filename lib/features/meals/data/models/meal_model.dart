@@ -1,5 +1,6 @@
 import 'package:meal_recommendation_app/core/utils/ingredient_display.dart';
 
+// Represents one ingredient used in a meal.
 class MealIngredientModel {
   final String id;
   final String ingredient;
@@ -15,6 +16,7 @@ class MealIngredientModel {
     required this.isOptional,
   });
 
+  // Converts ingredient JSON data into a MealIngredientModel object.
   factory MealIngredientModel.fromJson(Map<String, dynamic> json) {
     return MealIngredientModel(
       id: json['id'] as String,
@@ -25,12 +27,14 @@ class MealIngredientModel {
     );
   }
 
+  // Accepts decimal values returned as either String or num.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
     throw FormatException('Unexpected quantity type: ${value.runtimeType}');
   }
 
+  // Removes unnecessary decimal zeros when displaying quantities.
   String get displayQuantity {
     if (quantity == quantity.roundToDouble()) {
       return quantity.toInt().toString();
@@ -38,10 +42,12 @@ class MealIngredientModel {
     return quantity.toString();
   }
 
-  /// "cooked_rice" -> "Cooked Rice" — always use this for display,
-  /// keep `ingredient` for API calls and comparisons.
+  // Converts ingredient names into readable text for the UI.
+  // Example: "cooked_rice" becomes "Cooked Rice".
+  // Keep ingredient for API calls and comparisons.
   String get displayName => formatIngredientName(ingredient);
 
+  // Converts the ingredient model back into JSON format.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -57,6 +63,7 @@ class MealIngredientModel {
       'MealIngredientModel(id: $id, ingredient: $ingredient, '
       'quantity: $quantity, unit: $unit, isOptional: $isOptional)';
 
+  // Compares ingredient models based on their field values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -68,10 +75,12 @@ class MealIngredientModel {
         other.isOptional == isOptional;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode => Object.hash(id, ingredient, quantity, unit, isOptional);
 }
 
+// Represents one cooking instruction or step for a meal.
 class MealInstructionModel {
   final String id;
   final int stepNumber;
@@ -83,6 +92,7 @@ class MealInstructionModel {
     required this.instruction,
   });
 
+  // Converts instruction JSON data into a MealInstructionModel object.
   factory MealInstructionModel.fromJson(Map<String, dynamic> json) {
     return MealInstructionModel(
       id: json['id'] as String,
@@ -91,6 +101,7 @@ class MealInstructionModel {
     );
   }
 
+  // Converts the instruction model back into JSON format.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -104,6 +115,7 @@ class MealInstructionModel {
       'MealInstructionModel(id: $id, stepNumber: $stepNumber, '
       'instruction: $instruction)';
 
+  // Compares instruction models based on their field values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -113,10 +125,12 @@ class MealInstructionModel {
         other.instruction == instruction;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode => Object.hash(id, stepNumber, instruction);
 }
 
+// Represents a complete meal, including its details, ingredients, and instructions.
 class MealModel {
   final String id;
   final String name;
@@ -148,6 +162,7 @@ class MealModel {
     required this.instructions,
   });
 
+  // Converts the complete meal JSON response into a MealModel object.
   factory MealModel.fromJson(Map<String, dynamic> json) {
     return MealModel(
       id: json['id'] as String,
@@ -170,13 +185,14 @@ class MealModel {
     );
   }
 
+  // Converts each ingredient JSON object into a MealIngredientModel.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
     throw FormatException('Unexpected numeric type: ${value.runtimeType}');
   }
   
-
+  // Converts each instruction JSON object into a MealInstructionModel.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -195,11 +211,13 @@ class MealModel {
     };
   }
 
+  // Accepts numeric values returned as either String or num.
   @override
   String toString() =>
       'MealModel(id: $id, name: $name, cookingTime: $cookingTime, '
       'difficulty: $difficulty, servings: $servings)';
 
+  // Converts the complete meal model back into JSON format.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -217,6 +235,7 @@ class MealModel {
         other.updatedAt == updatedAt;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode => Object.hash(
         id,

@@ -1,6 +1,7 @@
 import 'package:meal_recommendation_app/features/profile/data/models/disliked_ingredient_model.dart';
 import 'package:meal_recommendation_app/features/profile/data/models/food_allergy_model.dart';
 
+// Represents the complete profile information of a user.
 class ProfileModel {
   final String id;
   final String authId;
@@ -17,6 +18,7 @@ class ProfileModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // Creates an immutable profile model.
   const ProfileModel({
     required this.id,
     required this.authId,
@@ -34,6 +36,8 @@ class ProfileModel {
     required this.updatedAt,
   });
 
+  // Converts backend JSON data into a ProfileModel object,
+  // including nested food allergy and disliked ingredient models.
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
       id: json['id'] as String,
@@ -46,9 +50,13 @@ class ProfileModel {
       budgetPerMeal: (json['budget_per_meal'] as num).toDouble(),
       cookingSkillLevel: json['cooking_skill_level'] as String,
       physicalActivityLevel: json['physical_activity_level'] as String,
+      
+      // Converts each allergy JSON object into a FoodAllergyModel.
       foodAllergies: (json['food_allergies'] as List<dynamic>? ?? [])
           .map((e) => FoodAllergyModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      
+      // Converts each disliked ingredient JSON object into its model.
       dislikedIngredients:
           (json['disliked_ingredients'] as List<dynamic>? ?? [])
               .map((e) =>
@@ -59,6 +67,7 @@ class ProfileModel {
     );
   }
 
+  // Converts the profile model and its nested models into JSON.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -79,6 +88,7 @@ class ProfileModel {
     };
   }
 
+  // Creates a copy of the profile with selected properties changed.
   ProfileModel copyWith({
     String? id,
     String? authId,
@@ -113,13 +123,16 @@ class ProfileModel {
     );
   }
 
+  // Combines the first and last name into one full name.
   String get fullName => '$firstName $lastName';
 
+  // Returns a readable summary of the profile for debugging.
   @override
   String toString() =>
       'ProfileModel(id: $id, name: $fullName, sex: $sex, '
       'budgetPerMeal: $budgetPerMeal, cookingSkillLevel: $cookingSkillLevel)';
 
+  // Compares profile properties, including the contents of both lists.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -140,6 +153,7 @@ class ProfileModel {
         other.updatedAt == updatedAt;
   }
 
+  // Generates a hash code using the profile fields and list contents.
   @override
   int get hashCode => Object.hash(
         id,
@@ -159,6 +173,7 @@ class ProfileModel {
       );
 }
 
+// Checks whether two lists contain the same elements in the same order.
 bool _listEquals<T>(List<T> a, List<T> b) {
   if (a.length != b.length) return false;
   for (var i = 0; i < a.length; i++) {

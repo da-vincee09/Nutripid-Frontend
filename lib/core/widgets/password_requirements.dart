@@ -4,14 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:meal_recommendation_app/app/colors.dart';
 import 'package:meal_recommendation_app/core/utils/password_validator.dart';
 
-/// Live password checklist shown under the password field.
-///
-/// Each rule is a small pill that turns olive with a check as it is met.
-/// Once every rule is met the checklist holds for a moment (so the last tick
-/// is visible), fades out, and collapses. It comes back if the password
-/// stops being valid again.
-///
-/// The parent's AnimatedSize handles the height change when this collapses.
+// Displays a live password checklist that disappears after all rules are met.
 class PasswordRequirements extends StatefulWidget {
   const PasswordRequirements({
     super.key,
@@ -21,7 +14,7 @@ class PasswordRequirements extends StatefulWidget {
 
   final String password;
 
-  /// How long the fully-ticked checklist stays visible before it disappears.
+  // How long the fully-ticked checklist stays visible before it disappears.
   final Duration collapseDelay;
 
   @override
@@ -35,8 +28,7 @@ class _PasswordRequirementsState extends State<PasswordRequirements> {
   @override
   void initState() {
     super.initState();
-    // If we are (re)built with an already-valid password, stay hidden
-    // instead of flashing the checklist again.
+     // Starts hidden if the password is already valid.
     _collapsed = PasswordValidator.isValid(widget.password);
   }
 
@@ -46,6 +38,7 @@ class _PasswordRequirementsState extends State<PasswordRequirements> {
     _syncCollapse();
   }
 
+  // Controls when the checklist should appear or collapse.
   void _syncCollapse() {
     if (!PasswordValidator.isValid(widget.password)) {
       _collapseTimer?.cancel();
@@ -64,6 +57,7 @@ class _PasswordRequirementsState extends State<PasswordRequirements> {
 
   @override
   void dispose() {
+    // Cancels the timer when the widget is removed.
     _collapseTimer?.cancel();
     super.dispose();
   }
@@ -92,6 +86,7 @@ class _PasswordRequirementsState extends State<PasswordRequirements> {
   }
 }
 
+// Arranges all password requirements into a wrapping list of chips.
 class _Checklist extends StatelessWidget {
   const _Checklist({super.key, required this.password});
 
@@ -116,6 +111,7 @@ class _Checklist extends StatelessWidget {
   }
 }
 
+// Displays one password requirement with its current validation status.
 class _RuleChip extends StatelessWidget {
   const _RuleChip({required this.label, required this.met});
 

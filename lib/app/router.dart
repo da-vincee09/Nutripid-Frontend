@@ -20,12 +20,17 @@ import 'package:meal_recommendation_app/features/meal_planner/presentation/scree
 import 'package:meal_recommendation_app/features/settings/presentation/screens/settings_screen.dart';
 import 'routes.dart';
 
+// Central configuration for all application navigation.
 final appRouter = GoRouter(
+  // Sets the splash screen as the first screen when the app opens.
   initialLocation: AppRoutes.splash,
+
+  // Defines all available routes and their corresponding screens.
   routes: [
     GoRoute(
       path: AppRoutes.splash,
       name: 'splash',
+      // Uses a fade transition when displaying the splash screen.
       pageBuilder: (context, state) => buildPageWithTransition(
         context: context,
         state: state,
@@ -88,6 +93,7 @@ final appRouter = GoRouter(
       path: AppRoutes.groceryList,
       name: 'groceryList',
       builder: (context, state) {
+        // Retrieves optional date information passed to the grocery list screen.
         final extra = state.extra as Map<String, dynamic>?;
         return GroceryListScreen(
           startDate: extra?['startDate'] as DateTime?,
@@ -106,6 +112,7 @@ final appRouter = GoRouter(
       path: '/meal-detail/:id',
       name: 'mealDetailStandalone',
       builder: (context, state) {
+        // Gets the meal ID from the URL to display the correct meal details.
         final mealId = state.pathParameters['id']!;
         return MealDetailScreen(mealId: mealId);
       },
@@ -121,13 +128,15 @@ final appRouter = GoRouter(
       ),
     ),
 
-    // ------------------------------------------------------------
-    // Bottom-nav tabs — each branch keeps its own navigation stack.
-    // ------------------------------------------------------------
+    // Defines the five bottom navigation branches and their shared layout.
     StatefulShellRoute.indexedStack(
+      // Wraps the selected navigation branch inside the MainShell layout.
       builder: (context, state, navigationShell) =>
           MainShell(navigationShell: navigationShell),
-            branches: [
+
+      // Each branch represents a main tab and maintains its own navigation state.
+      branches: [
+        // Home navigation branch.
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -137,6 +146,8 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        // Meals branch, including its nested meal details screen.
         StatefulShellBranch(
           routes: [
            GoRoute(
@@ -146,6 +157,7 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: ':id',
                   builder: (context, state) {
+                    // Gets the selected meal ID from the URL.
                     final mealId = state.pathParameters['id']!;
                     return MealDetailScreen(mealId: mealId);
                   },
@@ -154,6 +166,8 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        // Meal planner branch, including the add or edit meal plan screen.
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -164,6 +178,7 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'add',
                   builder: (context, state) {
+                    // Retrives optional data for creating or editing a meal plan.
                     final extra = state.extra as Map<String, dynamic>?;
                     return AddEditMealPlanEntryScreen(
                       initialDate: extra?['date'] as DateTime?,
@@ -175,6 +190,8 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        // For You branch for personalized meal recommendations.
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -184,6 +201,8 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+
+        // Pantry branch for managing available ingredients. 
         StatefulShellBranch(
           routes: [
             GoRoute(

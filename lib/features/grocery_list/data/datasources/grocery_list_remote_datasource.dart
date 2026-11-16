@@ -3,6 +3,7 @@ import 'package:meal_recommendation_app/core/errors/api_exception.dart';
 import 'package:meal_recommendation_app/core/networks/api_constants.dart';
 import 'package:meal_recommendation_app/features/grocery_list/data/models/grocery_list_model.dart';
 
+// Defines the contract for retrieving the grocery list from the remote API.
 abstract class GroceryListRemoteDatasource {
   Future<GroceryListResponseModel> getGroceryList({
     DateTime? startDate,
@@ -10,12 +11,15 @@ abstract class GroceryListRemoteDatasource {
   });
 }
 
+// Handles grocery list API requests using Dio.
 class GroceryListRemoteDatasourceImpl implements GroceryListRemoteDatasource {
   final Dio _dio;
 
+  // Receives the configured Dio client through dependency injection.
   // ignore: prefer_initializing_formals
   GroceryListRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
+  // Fetches the grocery list, optionally filtered by a date range.
   @override
   Future<GroceryListResponseModel> getGroceryList({
     DateTime? startDate,
@@ -37,6 +41,7 @@ class GroceryListRemoteDatasourceImpl implements GroceryListRemoteDatasource {
     }
   }
 
+  // Converts Dio errors into the application's custom API exceptions.
   ApiException _mapDioException(DioException e) {
     final isConnectivityIssue = switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -57,14 +62,10 @@ class GroceryListRemoteDatasourceImpl implements GroceryListRemoteDatasource {
       case 401:
         return const UnauthorizedException();
       case 404:
-        // "Profile not found" — same shared-404 limitation noted in
-        // meal_planner_remote_datasource.dart.
+        // The shared 404 response is currently handled as a server exception.
         return const ServerException();
       case 400:
-        // Backend raises 400 with a plain string detail when
-        // start_date > end_date. Not a Pydantic validation list, so it
-        // doesn't fit ValidationException's shape — falls through to
-        // ServerException for now.
+        // Invalid date ranges currently fall back to a server exception.
         return const ServerException();
       case 422:
         final errors = e.response?.data?['detail'] as List<dynamic>? ?? [];
@@ -75,6 +76,7 @@ class GroceryListRemoteDatasourceImpl implements GroceryListRemoteDatasource {
   }
 }
 
+// Converts a DateTime into the YYYY-MM-DD format expected by the API.
 String _formatDate(DateTime date) {
   final y = date.year.toString().padLeft(4, '0');
   final m = date.month.toString().padLeft(2, '0');

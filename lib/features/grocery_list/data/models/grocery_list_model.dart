@@ -1,5 +1,6 @@
 import 'package:meal_recommendation_app/core/utils/ingredient_display.dart';
 
+// Represents one grocery list item and provides helpers for parsing and displaying its values.
 class GroceryListItemModel {
   final String ingredient;
   final String unit;
@@ -17,6 +18,7 @@ class GroceryListItemModel {
     this.estimatedCost,
   });
 
+  // Converts grocery item JSON data into a GroceryListItemModel object.
   factory GroceryListItemModel.fromJson(Map<String, dynamic> json) {
     return GroceryListItemModel(
       ingredient: json['ingredient'] as String,
@@ -28,12 +30,14 @@ class GroceryListItemModel {
     );
   }
 
+  // Converts numeric values from either String or num into double.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
     throw FormatException('Unexpected quantity type: ${value.runtimeType}');
   }
 
+  // Converts a numeric value into double while allowing null.
   static double? _parseNullableDecimal(dynamic value) {
     if (value == null) return null;
     if (value is String) return double.parse(value);
@@ -41,38 +45,38 @@ class GroceryListItemModel {
     throw FormatException('Unexpected quantity type: ${value.runtimeType}');
   }
 
-  /// Trims trailing zeros for display (e.g. `2` instead of `2.0`).
+  // Removes unnecessary trailing zeros when displaying quantities.
   static String _trim(double value) {
     return value == value.roundToDouble()
         ? value.toInt().toString()
         : value.toString();
   }
 
-  // "string_beans" -> "String Beans" — always use this for display,
-  /// keep `ingredient` for API calls and comparisons.
+  // Converts the ingredient name into a user-friendly display format.
+  // Keep the original ingredient value for API calls and comparisons.
   String get displayName => formatIngredientName(ingredient);
 
+  // Provides formatted quantity values for display.
   String get displayQuantityToBuy => _trim(quantityToBuy);
   String get displayRequiredQuantity => _trim(requiredQuantity);
   String get displayPantryQuantity => _trim(pantryQuantity);
 
-  /// e.g. "₱210.00" — always 2 decimal places, unlike the trimmed
-  /// quantity getters above, since money shouldn't drop trailing zeros.
+  // Formats the estimated cost as Philippine pesos with two decimal places.
   String? get displayEstimatedCost {
     if (estimatedCost == null) return null;
     return '₱${estimatedCost!.toStringAsFixed(2)}';
   }
 
-  /// True when the pantry has none of this ingredient at all, as
-  /// opposed to just not enough — useful for the UI to distinguish
-  /// "buy some" from "buy more".
+  // Checks whether the ingredient is completely absent from the pantry.
   bool get hasNoneInPantry => pantryQuantity == 0;
 
+ 
   @override
   String toString() =>
       'GroceryListItemModel(ingredient: $ingredient, quantityToBuy: '
       '$quantityToBuy $unit, estimatedCost: $estimatedCost)';
 
+  // Compares grocery items based on all their field values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -85,6 +89,7 @@ class GroceryListItemModel {
         other.estimatedCost == estimatedCost;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode => Object.hash(
         ingredient,
@@ -96,6 +101,7 @@ class GroceryListItemModel {
       );
 }
 
+// Represents the complete grocery list response returned by the backend.
 class GroceryListResponseModel {
   final DateTime startDate;
   final DateTime endDate;
@@ -109,6 +115,7 @@ class GroceryListResponseModel {
     this.totalEstimatedCost,
   });
 
+  // Converts the complete grocery list JSON response into a Dart model.
   factory GroceryListResponseModel.fromJson(Map<String, dynamic> json) {
     return GroceryListResponseModel(
       startDate: DateTime.parse(json['start_date'] as String),
@@ -122,8 +129,8 @@ class GroceryListResponseModel {
     );
   }
 
-  /// e.g. "₱222.21" — null when no items in the list had a known price
-  /// (matches the backend's has_any_priced_item logic).
+  // Formats the total estimated cost as Philippine pesos.
+  // Returns null when the backend does not provide a total cost.
   String? get displayTotalEstimatedCost {
     if (totalEstimatedCost == null) return null;
     return '₱${totalEstimatedCost!.toStringAsFixed(2)}';

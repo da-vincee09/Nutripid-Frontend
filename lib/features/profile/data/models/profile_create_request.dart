@@ -1,3 +1,4 @@
+// Holds the information required when creating a user's profile.
 class ProfileCreateRequest {
   final String firstName;
   final String lastName;
@@ -10,6 +11,7 @@ class ProfileCreateRequest {
   final List<String> dislikedIngredients;
   final String? profileImageUrl;
 
+  // Creates a profile request with required and optional information.
   const ProfileCreateRequest({
     required this.firstName,
     required this.lastName,
@@ -23,6 +25,7 @@ class ProfileCreateRequest {
     this.profileImageUrl,
   });
 
+  // Converts profile information into a JSON-compatible map for the API.
   Map<String, dynamic> toJson() {
     return {
       'first_name': firstName,
@@ -38,6 +41,7 @@ class ProfileCreateRequest {
     };
   }
 
+  // Creates a copy of the request with selected fields changed.
   ProfileCreateRequest copyWith({
     String? firstName,
     String? lastName,
@@ -64,6 +68,7 @@ class ProfileCreateRequest {
     );
   }
 
+  // Returns a readable summary of the request for debugging.
   @override
   String toString() =>
       'ProfileCreateRequest(firstName: $firstName, lastName: $lastName, '

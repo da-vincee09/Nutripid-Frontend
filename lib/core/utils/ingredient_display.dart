@@ -1,3 +1,4 @@
+// Converts an ingredient name from underscore format to readable title format.
 String formatIngredientName(String raw) {
   return raw
       .split('_')
@@ -7,6 +8,7 @@ String formatIngredientName(String raw) {
       .join(' ');
 }
 
+// Converts a displayed ingredient name into lowercase underscore format.
 String toCanonicalIngredientName(String display) {
   return display.trim().toLowerCase().replaceAll(RegExp(r'\s+'), '_');
 }

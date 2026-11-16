@@ -5,6 +5,7 @@ import 'package:meal_recommendation_app/features/pantry/data/models/pantry_item_
 import 'package:meal_recommendation_app/features/pantry/data/models/pantry_item_model.dart';
 import 'package:meal_recommendation_app/features/pantry/data/models/pantry_item_update_request.dart';
 
+// Defines the required operations for accessing pantry items.
 abstract class PantryRemoteDatasource {
   Future<PantryItemModel> createPantryItem(PantryItemCreateRequest request);
   Future<List<PantryItemModel>> getPantryItems();
@@ -16,9 +17,11 @@ abstract class PantryRemoteDatasource {
   Future<void> deletePantryItem(String id);
 }
 
+// Implements pantry operations by communicating with the backend using Dio.
 class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
   final Dio _dio;
 
+  // Receives the configured Dio client through dependency injection.
   // ignore: prefer_initializing_formals
   PantryRemoteDatasourceImpl({required Dio dio}) : _dio = dio;
 
@@ -26,17 +29,23 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
   Future<PantryItemModel> createPantryItem(
     PantryItemCreateRequest request,
   ) async {
+    // Sends a POST request with the new pantry item's data.
     final json = await _request<Map<String, dynamic>>(
       () => _dio.post(ApiConstants.pantry, data: request.toJson()),
     );
+
+    // Converts the backend response into a pantry item model.
     return PantryItemModel.fromJson(json);
   }
 
   @override
   Future<List<PantryItemModel>> getPantryItems() async {
+    // Retrieves all pantry items from the backend.
     final list = await _request<List<dynamic>>(
       () => _dio.get(ApiConstants.pantry),
     );
+
+    // Converts each JSON item into a PantryItemModel.
     return list
         .map((e) => PantryItemModel.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -44,6 +53,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
 
   @override
   Future<PantryItemModel> getPantryItem(String id) async {
+    // Retrieves one pantry item using its ID.
     final json = await _request<Map<String, dynamic>>(
       () => _dio.get('${ApiConstants.pantry}/$id'),
     );
@@ -55,6 +65,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
     String id,
     PantryItemUpdateRequest request,
   ) async {
+    // Sends a PUT request to update an existing pantry item.
     final json = await _request<Map<String, dynamic>>(
       () => _dio.put('${ApiConstants.pantry}/$id', data: request.toJson()),
     );
@@ -63,6 +74,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
 
   @override
   Future<void> deletePantryItem(String id) async {
+    // Sends a DELETE request to remove a pantry item.
     try {
       await _dio.delete('${ApiConstants.pantry}/$id');
     } on DioException catch (e) {
@@ -70,6 +82,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
     }
   }
 
+  // Reusable helper for sending requests and handling Dio exceptions.
   Future<T> _request<T>(Future<Response> Function() call) async {
     try {
       final response = await call();
@@ -79,6 +92,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
     }
   }
 
+  // Converts Dio errors into the application's custom API exceptions.
   ApiException _mapDioException(DioException e) {
     final isConnectivityIssue = switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -89,6 +103,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
       _ => false,
     };
 
+    // Handles network problems or requests without an HTTP response.
     if (isConnectivityIssue || e.response == null) {
       return const NetworkException();
     }
@@ -97,6 +112,7 @@ class PantryRemoteDatasourceImpl implements PantryRemoteDatasource {
     final body = response.data;
     final detail = body is Map<String, dynamic> ? body['detail'] : null;
 
+    // Maps HTTP status codes to specific application exceptions.
     switch (response.statusCode) {
       case 401:
         return UnauthorizedException(

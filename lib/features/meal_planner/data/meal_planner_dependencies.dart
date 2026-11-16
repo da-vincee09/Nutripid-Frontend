@@ -4,12 +4,14 @@ import 'package:meal_recommendation_app/features/meal_planner/data/datasources/m
 import 'package:meal_recommendation_app/features/meal_planner/data/repositories/meal_planner_repository_impl.dart';
 import 'package:meal_recommendation_app/features/meal_planner/domain/repositories/meal_planner_repository.dart';
 
+// Provides the remote datasource and injects the configured Dio client.
 final mealPlannerRemoteDatasourceProvider = Provider<MealPlannerRemoteDatasource>((ref) {
   return MealPlannerRemoteDatasourceImpl(
     dio: ref.watch(dioProvider),
   );
 });
 
+// Provides the repository and injects the remote datasource.
 final mealPlannerRepositoryProvider = Provider<MealPlannerRepository>((ref) {
   return MealPlannerRepositoryImpl(
     datasource: ref.watch(mealPlannerRemoteDatasourceProvider),

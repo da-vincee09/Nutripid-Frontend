@@ -1,3 +1,4 @@
+// Holds the optional information submitted when updating a user profile.
 class ProfileUpdateRequest {
   final String? firstName;
   final String? lastName;
@@ -10,6 +11,7 @@ class ProfileUpdateRequest {
   final List<String>? dislikedIngredients;
   final String? profileImageUrl;
 
+  // All fields are optional because users can update only selected information.
   const ProfileUpdateRequest({
     this.firstName,
     this.lastName,
@@ -23,6 +25,7 @@ class ProfileUpdateRequest {
     this.profileImageUrl,
   });
 
+  // Converts only the provided fields into a JSON-compatible map.
   Map<String, dynamic> toJson() {
     return {
       if (firstName != null) 'first_name': firstName,
@@ -42,6 +45,7 @@ class ProfileUpdateRequest {
     };
   }
 
+  // Creates a copy of the request while retaining unchanged values.
   ProfileUpdateRequest copyWith({
     String? firstName,
     String? lastName,
@@ -68,8 +72,10 @@ class ProfileUpdateRequest {
     );
   }
 
+  // Checks whether the request contains any fields to update.
   bool get isEmpty => toJson().isEmpty;
 
+  // Returns a readable representation of the update request.
   @override
   String toString() => 'ProfileUpdateRequest(${toJson()})';
 }

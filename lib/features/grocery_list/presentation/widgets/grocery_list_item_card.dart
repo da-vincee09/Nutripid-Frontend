@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:meal_recommendation_app/app/colors.dart';
 import 'package:meal_recommendation_app/features/grocery_list/data/models/grocery_list_model.dart';
 
+// Displays an individual grocery item with its quantity, pantry status, and checklist state.
 class GroceryListItemCard extends StatelessWidget {
   final GroceryListItemModel item;
   final bool isChecked;
@@ -14,6 +15,7 @@ class GroceryListItemCard extends StatelessWidget {
     required this.onChanged,
   });
 
+  // Builds the grocery item card and handles changes to its checked status.
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -138,6 +140,7 @@ class GroceryListItemCard extends StatelessWidget {
   }
 }
 
+// Displays an animated circular indicator for the grocery item's checked status.
 class _CheckCircle extends StatelessWidget {
   final bool isChecked;
 

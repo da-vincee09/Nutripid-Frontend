@@ -1,5 +1,6 @@
 import 'package:meal_recommendation_app/core/utils/date_utils.dart';
 
+// Represents basic meal information included in a meal plan entry.
 class MealPlanMealSummaryModel {
   final String id;
   final String name;
@@ -13,6 +14,7 @@ class MealPlanMealSummaryModel {
     this.imageUrl,
   });
 
+  // Converts meal summary JSON data into a Dart model.
   factory MealPlanMealSummaryModel.fromJson(Map<String, dynamic> json) {
     return MealPlanMealSummaryModel(
       id: json['id'] as String,
@@ -22,12 +24,14 @@ class MealPlanMealSummaryModel {
     );
   }
 
+  // Converts a numeric value or numeric string into double.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
     throw FormatException('Unexpected estimated_cost type: ${value.runtimeType}');
   }
 
+  // Converts the meal summary model into JSON format.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -37,6 +41,7 @@ class MealPlanMealSummaryModel {
     };
   }
 
+  // Compares meal summary objects based on their field values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -47,10 +52,12 @@ class MealPlanMealSummaryModel {
         other.imageUrl == imageUrl;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode => Object.hash(id, name, estimatedCost, imageUrl);
 }
 
+// Represents an individual meal scheduled on a specific date.
 class MealPlanEntryModel {
   final String id;
   final MealPlanMealSummaryModel meal;
@@ -68,6 +75,7 @@ class MealPlanEntryModel {
     required this.updatedAt,
   });
 
+  // Converts meal plan entry JSON data into a Dart model.
   factory MealPlanEntryModel.fromJson(Map<String, dynamic> json) {
     return MealPlanEntryModel(
       id: json['id'] as String,
@@ -81,6 +89,7 @@ class MealPlanEntryModel {
     );
   }
 
+  // Converts the meal plan entry model into JSON format.
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -97,6 +106,7 @@ class MealPlanEntryModel {
       'MealPlanEntryModel(id: $id, meal: ${meal.name}, '
       'plannedDate: $plannedDate, mealSlot: $mealSlot)';
 
+  // Compares meal plan entries based on all their field values.
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
@@ -109,11 +119,13 @@ class MealPlanEntryModel {
         other.updatedAt == updatedAt;
   }
 
+  // Generates a hash code using the same fields used in equality comparison.
   @override
   int get hashCode =>
       Object.hash(id, meal, plannedDate, mealSlot, createdAt, updatedAt);
 }
 
+// Represents the complete weekly meal plan and its scheduled entries.
 class WeeklyPlanModel {
   final DateTime startDate;
   final DateTime endDate;
@@ -127,6 +139,7 @@ class WeeklyPlanModel {
     required this.estimatedCostTotal,
   });
 
+  // Converts the weekly meal plan JSON response into a Dart model.
   factory WeeklyPlanModel.fromJson(Map<String, dynamic> json) {
     return WeeklyPlanModel(
       startDate: DateTime.parse(json['start_date'] as String),
@@ -138,6 +151,7 @@ class WeeklyPlanModel {
     );
   }
 
+  // Converts the total estimated cost into a double.
   static double _parseDecimal(dynamic value) {
     if (value is String) return double.parse(value);
     if (value is num) return value.toDouble();
@@ -146,8 +160,7 @@ class WeeklyPlanModel {
     );
   }
 
-  /// Entries grouped by their planned date's calendar day (time-of-day stripped),
-  /// convenient for driving a weekly calendar UI.
+  // Groups meal plan entries by their calendar date, ignoring the time.
   Map<DateTime, List<MealPlanEntryModel>> get entriesByDay {
     final map = <DateTime, List<MealPlanEntryModel>>{};
     for (final entry in entries) {

@@ -5,19 +5,21 @@ import 'package:meal_recommendation_app/features/pantry/data/models/pantry_item_
 import 'package:meal_recommendation_app/features/pantry/data/pantry_dependencies.dart';
 import 'package:meal_recommendation_app/features/recommendations/presentation/providers/recommendation_provider.dart';
 
+// Exposes PantryController and its asynchronous pantry item state.
 final pantryControllerProvider =
     NotifierProvider<PantryController, AsyncValue<List<PantryItemModel>>>(
   PantryController.new,
 );
 
+// Manages pantry operations and updates the pantry state.
 class PantryController extends Notifier<AsyncValue<List<PantryItemModel>>> {
+  // Initializes the controller with an empty list without fetching data.
   @override
   AsyncValue<List<PantryItemModel>> build() {
-    // Idle until loadItems() is explicitly called (e.g. when the Pantry
-    // screen mounts), mirroring ProfileController's pattern.
     return const AsyncData([]);
   }
 
+  // Retrieves all pantry items from the repository.
   Future<void> loadItems() async {
     state = const AsyncLoading();
     try {
@@ -29,6 +31,7 @@ class PantryController extends Notifier<AsyncValue<List<PantryItemModel>>> {
     }
   }
 
+  // Creates a pantry item and refreshes meal recommendations.
   Future<bool> addItem(PantryItemCreateRequest request) async {
     final currentItems = state.value ?? [];
 
@@ -37,9 +40,7 @@ class PantryController extends Notifier<AsyncValue<List<PantryItemModel>>> {
       final newItem = await repository.createPantryItem(request);
       state = AsyncData([...currentItems, newItem]);
 
-      // Recommendations depend on pantry contents — refresh them too,
-      // so the tab shows fresh data without needing a manual pull or
-      // a hot restart.
+      // Refreshes recommendations because they depend on pantry contents.
       ref.read(recommendationControllerProvider.notifier).loadRecommendations();
 
       return true;
@@ -49,12 +50,15 @@ class PantryController extends Notifier<AsyncValue<List<PantryItemModel>>> {
     }
   }
 
+  // Updates a pantry item and refreshes meal recommendations.
   Future<bool> updateItem(String id, PantryItemUpdateRequest request) async {
     final currentItems = state.value ?? [];
 
     try {
       final repository = ref.read(pantryRepositoryProvider);
       final updated = await repository.updatePantryItem(id, request);
+      
+      // Replaces the matching pantry item with the updated version.
       state = AsyncData([
         for (final item in currentItems)
           if (item.id == id) updated else item,
@@ -69,12 +73,15 @@ class PantryController extends Notifier<AsyncValue<List<PantryItemModel>>> {
     }
   }
 
+  // Deletes a pantry item and refreshes meal recommendations.
   Future<bool> deleteItem(String id) async {
     final currentItems = state.value ?? [];
 
     try {
       final repository = ref.read(pantryRepositoryProvider);
       await repository.deletePantryItem(id);
+      
+      // Removes the deleted item from the local pantry list.
       state = AsyncData(
         currentItems.where((item) => item.id != id).toList(),
       );

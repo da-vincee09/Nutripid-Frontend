@@ -2,58 +2,63 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meal_recommendation_app/features/recommendations/data/models/recommendation_model.dart';
 import 'package:meal_recommendation_app/features/recommendations/data/recommendation_dependencies.dart';
 
+// Provides the recommendation controller and its asynchronous state.
 final recommendationControllerProvider = NotifierProvider<RecommendationController,
     AsyncValue<List<RecommendationModel>>>(
   RecommendationController.new,
 );
 
-class RecommendationController
-    extends Notifier<AsyncValue<List<RecommendationModel>>> {
-  String _sortBy = 'score';
+// Manages fetching, sorting, and displaying meal recommendations.
+class RecommendationController extends Notifier<AsyncValue<List<RecommendationModel>>> {
+  // Stores the currently selected sorting option.
+  String _sortBy = 'score'; 
+  
+  // Stores the original recommendations fetched from the API.
   List<RecommendationModel> _rawRecommendations = [];
 
+  // Provides access to the currently selected sorting option.
   String get sortBy => _sortBy;
 
   @override
   AsyncValue<List<RecommendationModel>> build() {
-    // Idle until loadRecommendations() is called, mirroring MealController.
+    // Initializes an empty state without automatically fetching recommendations.
     return const AsyncData([]);
   }
 
-  /// Fetches from the network once. Sorting afterward is handled entirely
-  /// client-side via [setSortBy] — no re-fetch, no race between requests.
+  // Fetches recommendations from the API and sorts them locally.
   Future<void> loadRecommendations() async {
     state = const AsyncLoading();
     try {
       final repository = ref.read(recommendationRepositoryProvider);
-      // Backend default order doesn't matter — we always re-sort locally
-      // against whichever sortBy is currently active.
+      // Retrieves recommendations without specifying a sorting option.
       final recommendations = await repository.getRecommendations();
       _rawRecommendations = recommendations;
+      // Updates the state using the currently selected sorting option.
       state = AsyncData(_sorted(_rawRecommendations, _sortBy));
     } catch (e, st) {
+      // Stores the error if fetching recommendations fails.
       state = AsyncError(e, st);
     }
   }
 
-  /// Re-sorts the already-fetched list in memory. Synchronous, instant,
-  /// no loading state — this is what makes toggling feel immediate and
-  /// eliminates the stale-response race from the old fetch-per-tap design.
+  // Changes the sorting option and immediately re-sorts the existing recommendations
   void setSortBy(String sortBy) {
     if (_sortBy == sortBy) return;
     _sortBy = sortBy;
+    // Updates the state without making another API request.
     state = AsyncData(_sorted(_rawRecommendations, _sortBy));
   }
 
+  // Sorts recommendations based on the selected sorting option.
   List<RecommendationModel> _sorted(
     List<RecommendationModel> recommendations,
     String sortBy,
   ) {
+    // Creates a copy to avoid modifying the original recommendations list.
     final sorted = List<RecommendationModel>.from(recommendations);
 
     if (sortBy == 'cost') {
-      // Ascending cost; hybrid score breaks ties — mirrors the backend's
-      // sort_by=cost logic exactly.
+      // Sorts by ascending meal cost and uses hybrid score to break ties.
       sorted.sort((a, b) {
         final costCompare =
             a.meal.estimatedCost.compareTo(b.meal.estimatedCost);
@@ -61,9 +66,7 @@ class RecommendationController
         return b.hybridScore.compareTo(a.hybridScore);
       });
     } else {
-      // "score": tier good pantry match ("adapt") ahead of "fallback",
-      // hybrid score breaks ties within each tier — mirrors the backend's
-      // default sort_by=score logic exactly.
+      // Prioritizes adapted meals over fallback meals, then sorts by hybrid score.
       sorted.sort((a, b) {
         final aFallback = a.adaptation.decision != 'adapt';
         final bFallback = b.adaptation.decision != 'adapt';
@@ -74,6 +77,7 @@ class RecommendationController
       });
     }
 
+    // Returns the sorted recommendations list.
     return sorted;
   }
 }

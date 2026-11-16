@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Displays a reusable confirmation dialog and returns the user's choice.
 Future<bool?> showConfirmDialog(
   BuildContext context, {
   required String title,
@@ -8,6 +9,7 @@ Future<bool?> showConfirmDialog(
   String cancelLabel = 'Cancel',
   bool isDestructive = true,
 }) {
+   // Gets the current app theme for styling the dialog.
   final theme = Theme.of(context);
 
   return showDialog<bool>(
@@ -16,10 +18,13 @@ Future<bool?> showConfirmDialog(
       title: Text(title),
       content: Text(message),
       actions: [
+        // Closes the dialog and returns false when canceled.
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
           child: Text(cancelLabel),
         ),
+
+        // Closes the dialog and returns true when confirmed.
         TextButton(
           onPressed: () => Navigator.of(context).pop(true),
           style: TextButton.styleFrom(
