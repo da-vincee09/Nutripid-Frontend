@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:meal_recommendation_app/app/colors.dart';
 import 'package:meal_recommendation_app/app/routes.dart';
 
-
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
@@ -14,8 +13,20 @@ class SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
+class _SplashError {
+  final String title;
+  final String message;
+  final IconData icon;
+
+  const _SplashError({
+    required this.title,
+    required this.message,
+    required this.icon,
+  });
+}
+
 class _SplashScreenState extends ConsumerState<SplashScreen> {
-  String? _error;
+  _SplashError? _error;
 
   @override
   void initState() {
@@ -59,11 +70,23 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
       loading: () {
         // Shouldn't happen — we awaited loadProfile() above — but guard
         // anyway rather than leaving the user stuck on a blank splash.
-        setState(() => _error = 'Taking longer than expected.');
+        setState(() {
+          _error = const _SplashError(
+            title: 'Taking longer than expected',
+            message: 'This is taking a while. Please try again.',
+            icon: Icons.hourglass_empty_rounded,
+          );
+        });
       },
       error: (error, _) {
-        setState(() => _error = 'Could not connect. Please check your '
-            'connection and try again.');
+        setState(() {
+          _error = const _SplashError(
+            title: 'Connection problem',
+            message: 'We couldn\'t reach the server. Please check your '
+                'internet connection and try again.',
+            icon: Icons.wifi_off_rounded,
+          );
+        });
       },
     );
   }
@@ -71,69 +94,148 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 96,
-              height: 96,
-              decoration: BoxDecoration(
-                color: AppColors.orange,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Icon(
-                Icons.restaurant_menu_rounded,
-                size: 52,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'TipidMeal',
-              style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Affordable meals. Smarter choices.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-            ),
-            const SizedBox(height: 40),
-
-            if (_error == null)
-              const SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  color: AppColors.orange,
-                ),
-              )
-            else ...[
-              Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.error,
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 360),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: AppColors.orange,
+                      borderRadius: BorderRadius.circular(24),
                     ),
+                    child: const Icon(
+                      Icons.restaurant_menu_rounded,
+                      size: 52,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Nutripid',
+                    style: textTheme.headlineLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Affordable meals. Smarter choices.',
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Fixed-height status area so the logo doesn't shift
+                  // when switching between the spinner and the error.
+                  SizedBox(
+                    height: 190,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: _error == null
+                          ? const Align(
+                              key: ValueKey('loading'),
+                              alignment: Alignment.topCenter,
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  color: AppColors.orange,
+                                ),
+                              ),
+                            )
+                          : Align(
+                              key: const ValueKey('error'),
+                              alignment: Alignment.topCenter,
+                              child: _ErrorCard(
+                                error: _error!,
+                                onRetry: _resolveDestination,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: _resolveDestination,
-                child: const Text('Retry'),
-              ),
-            ],
-          ],
+            ),
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  final _SplashError error;
+  final VoidCallback onRetry;
+
+  const _ErrorCard({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+      decoration: BoxDecoration(
+        color: colorScheme.errorContainer.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colorScheme.error..withValues(alpha: 0.25),
+       )
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(error.icon, size: 28, color: colorScheme.error),
+          const SizedBox(height: 10),
+          Text(
+            error.title,
+            textAlign: TextAlign.center,
+            style: textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            error.message,
+            textAlign: TextAlign.center,
+            style: textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Try again'),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.orange,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

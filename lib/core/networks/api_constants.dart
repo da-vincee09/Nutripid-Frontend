@@ -3,7 +3,7 @@ class ApiConstants {
   // Private constructor prevents creating an ApiConstants object.
   ApiConstants._();
 
-  // Base URL of the TipidMeal backend API.
+  // Base URL of the application backend API.
   static const String baseUrl = 'http://127.0.0.1:8000/api/v1';  // https://tipidmeal-backend-1.onrender.com/api/v1 http://127.0.0.1:8000/api/v1
 
   // Profile endpoints.

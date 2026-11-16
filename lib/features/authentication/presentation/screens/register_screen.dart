@@ -254,7 +254,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         left: 24,
                         bottom: 8,
                         child: Text(
-                          'TipidMeal',
+                          'Nutripid',
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: AppColors.cream.withValues(alpha: 0.9),
                             fontWeight: FontWeight.w700,

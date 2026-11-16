@@ -5,7 +5,7 @@ import 'package:meal_recommendation_app/app/app.dart';
 import 'package:meal_recommendation_app/features/grocery_list/data/grocery_checklist_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Main entry point of the TipidMeal application.
+// Main entry point of the application.
 Future<void> main() async {
   // Ensures Flutter is initialized before performing asynchronous setup.
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +24,7 @@ Future<void> main() async {
   // Starts the application and makes Riverpod available throughout the widget tree.
   runApp(
     const ProviderScope(
-      child: TipidMealApp(),
+      child: NutripidApp(),
     ),
   );
 

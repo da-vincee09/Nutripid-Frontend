@@ -4,9 +4,9 @@ import 'package:meal_recommendation_app/app/router.dart';
 import 'package:meal_recommendation_app/app/theme.dart';
 import 'package:meal_recommendation_app/core/providers/theme_mode_provider.dart';
 
-// Root widget of the TipidMeal application.
-class TipidMealApp extends ConsumerWidget {
-  const TipidMealApp({super.key});
+// Root widget of the application.
+class NutripidApp extends ConsumerWidget {
+  const NutripidApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,7 +15,7 @@ class TipidMealApp extends ConsumerWidget {
 
     // Initializes the app using GoRouter for navigation
     return MaterialApp.router(
-      title: 'TipidMeal',
+      title: 'Nutripid',
       debugShowCheckedModeBanner: false,
 
       // Applies the custom light and dark themes.

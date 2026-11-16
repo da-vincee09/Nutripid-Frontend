@@ -35,7 +35,7 @@ class MainShell extends StatelessWidget {
         // Calls _onTap when the user selects a navigation destination
         onDestinationSelected: _onTap,
 
-        // Defines the five navigation destinations of TipidMeal.
+        // Defines the five navigation destinations of application.
         destinations: const [
           // Home tab with outlined and selected icons.
           NavigationDestination(

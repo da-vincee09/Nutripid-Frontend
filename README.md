@@ -1,4 +1,4 @@
-# TipidMeal 🍽️
+# Nutripid 🍽️
 
 A budget-friendly meal recommendation app designed to help users discover practical, affordable meals based on their budget, cooking skills, dietary restrictions, ingredient preferences, and available pantry ingredients. It also shows how nutritionally adequate each meal is for them, helps them plan a whole week, and tells them whether their plan lets them save.
 
@@ -1718,7 +1718,7 @@ Make sure you have:
 * Dart SDK
 * Android Studio or Xcode
 * A Supabase project
-* A running TipidMeal FastAPI backend
+* A running FastAPI backend
 * Supabase authentication configured
 * Supabase PostgreSQL configured
 * Supabase Storage configured
@@ -2086,7 +2086,7 @@ Potential future functionality:
 
 > **Current milestone: Week 6 Complete 🎉, Week 7 Nearly Complete (Day 4 [servings] outstanding), Week 8 (Nutrition) Built, Weekly Planning and Savings added, results pending final data verification**
 
-TipidMeal now has a working core application flow consisting of:
+Nutripid now has a working core application flow consisting of:
 
 ```text
 Authentication

@@ -1,4 +1,4 @@
-// Centralizes all route addresses used for navigation in TipidMeal.
+// Centralizes all route addresses used for navigation.
 // Static constants prevent repeating route strings throughout the app.
 // Dynamic routes, such as mealDetail, accept an ID to identify a specific meal.
 // abstract means the class is not intended to be created as an object or instance.
